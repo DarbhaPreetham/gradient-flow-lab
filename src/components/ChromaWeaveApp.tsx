@@ -10,12 +10,22 @@ type Screen = { kind: "home" } | { kind: "gallery"; filter?: Difficulty } | { ki
 export function ChromaWeaveApp() {
   const [save, setSave] = useState<SaveData>(() => loadSave());
   const [screen, setScreen] = useState<Screen>({ kind: "home" });
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     saveSave(save);
     setAudioEnabled(save.settings.sound);
     setHapticsEnabled(save.settings.haptics);
   }, [save]);
+
+  // Apply theme to <html>
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("light", save.settings.theme === "light");
+    root.classList.toggle("dark", save.settings.theme === "dark");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", save.settings.theme === "light" ? "#F6F4FB" : "#0F0F16");
+  }, [save.settings.theme]);
 
   const updateSettings = (patch: Partial<SaveData["settings"]>) =>
     setSave((s) => ({ ...s, settings: { ...s.settings, ...patch } }));
@@ -31,17 +41,28 @@ export function ChromaWeaveApp() {
     });
   };
 
+  const startGame = (levelId: string) => {
+    unlockAudio();
+    if (!save.tutorialSeen) setShowTutorial(true);
+    setScreen({ kind: "game", levelId });
+  };
+
+  const finishTutorial = () => {
+    setShowTutorial(false);
+    setSave((s) => ({ ...s, tutorialSeen: true }));
+  };
+
   return (
     <main className="radial-bg min-h-dvh w-full overflow-hidden">
       {screen.kind === "home" && (
         <HomeScreen
           onPlay={() => {
-            unlockAudio();
             // resume latest unlocked, not-yet-completed level
             const next = LEVELS.find((l) => save.unlocked.includes(l.id) && !save.completed.includes(l.id)) ?? LEVELS[0];
-            setScreen({ kind: "game", levelId: next.id });
+            startGame(next.id);
           }}
           onGallery={(filter) => setScreen({ kind: "gallery", filter })}
+          onShowTutorial={() => setShowTutorial(true)}
           settings={save.settings}
           onSettings={updateSettings}
           completedCount={save.completed.length}
@@ -52,7 +73,7 @@ export function ChromaWeaveApp() {
           save={save}
           filter={screen.filter}
           onBack={() => setScreen({ kind: "home" })}
-          onPick={(id) => setScreen({ kind: "game", levelId: id })}
+          onPick={(id) => startGame(id)}
         />
       )}
       {screen.kind === "game" && (
@@ -68,8 +89,10 @@ export function ChromaWeaveApp() {
             else setScreen({ kind: "gallery" });
           }}
           onToggleSound={() => updateSettings({ sound: !save.settings.sound })}
+          onShowTutorial={() => setShowTutorial(true)}
         />
       )}
+      {showTutorial && <TutorialOverlay onDone={finishTutorial} />}
     </main>
   );
 }
@@ -77,22 +100,30 @@ export function ChromaWeaveApp() {
 function HomeScreen({
   onPlay,
   onGallery,
+  onShowTutorial,
   settings,
   onSettings,
   completedCount,
 }: {
   onPlay: () => void;
   onGallery: (d?: Difficulty) => void;
+  onShowTutorial: () => void;
   settings: SaveData["settings"];
   onSettings: (p: Partial<SaveData["settings"]>) => void;
   completedCount: number;
 }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-10">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle
+          theme={settings.theme}
+          onToggle={() => onSettings({ theme: settings.theme === "dark" ? "light" : "dark" })}
+        />
+      </div>
       <header className="mt-6 text-center">
-        <p className="font-display text-xs uppercase tracking-[0.4em] text-white/60">A Color Tapestry</p>
+        <p className="font-display text-xs uppercase tracking-[0.4em]" style={{ color: "var(--cw-muted-soft)" }}>A Color Tapestry</p>
         <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">ChromaWeave</h1>
-        <p className="mt-4 text-sm text-white/70">Weave gradients of light into living tapestries.</p>
+        <p className="mt-4 text-sm" style={{ color: "var(--cw-muted)" }}>Weave gradients of light into living tapestries.</p>
       </header>
 
       <div className="my-10 flex w-full flex-col items-center gap-4">
@@ -108,7 +139,7 @@ function HomeScreen({
             <button
               key={d}
               onClick={() => onGallery(d)}
-              className="glass-panel font-display rounded-xl px-2 py-3 text-xs font-semibold uppercase tracking-wider text-white/90 transition hover:bg-white/15"
+              className="glass-panel font-display rounded-xl px-2 py-3 text-xs font-semibold uppercase tracking-wider transition hover:opacity-90"
             >
               {d}
             </button>
@@ -116,27 +147,53 @@ function HomeScreen({
         </div>
         <button
           onClick={() => onGallery()}
-          className="glass-panel font-display w-full rounded-xl px-4 py-3 text-sm font-medium text-white/90 hover:bg-white/15"
+          className="glass-panel font-display w-full rounded-xl px-4 py-3 text-sm font-medium hover:opacity-90"
         >
           Browse all {LEVELS.length} tapestries • {completedCount} complete
+        </button>
+        <button
+          onClick={onShowTutorial}
+          className="font-display text-xs uppercase tracking-[0.3em] underline-offset-4 hover:underline"
+          style={{ color: "var(--cw-muted)" }}
+        >
+          How to play
         </button>
       </div>
 
       <section className="glass-panel w-full rounded-2xl p-5">
-        <h2 className="font-display mb-3 text-sm font-semibold uppercase tracking-wider text-white/70">Settings</h2>
+        <h2 className="font-display mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--cw-muted)" }}>Settings</h2>
+        <Toggle
+          label="Light mode"
+          checked={settings.theme === "light"}
+          onChange={(v) => onSettings({ theme: v ? "light" : "dark" })}
+        />
         <Toggle label="Sound FX" checked={settings.sound} onChange={(v) => onSettings({ sound: v })} />
         <Toggle label="Haptics" checked={settings.haptics} onChange={(v) => onSettings({ haptics: v })} />
         <Toggle label="Color Blind Assist" checked={settings.colorBlind} onChange={(v) => onSettings({ colorBlind: v })} />
       </section>
 
-      <footer className="mt-8 text-center text-xs text-white/40">Crafted with light, color, and patience.</footer>
+      <footer className="mt-8 text-center text-xs" style={{ color: "var(--cw-muted-soft)" }}>Crafted with light, color, and patience.</footer>
     </div>
+  );
+}
+
+function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className="glass-panel font-display flex h-11 min-w-11 items-center gap-2 rounded-full px-4 text-sm"
+    >
+      <span aria-hidden>{theme === "dark" ? "🌙" : "☀️"}</span>
+      <span className="hidden sm:inline">{theme === "dark" ? "Dark" : "Light"}</span>
+    </button>
   );
 }
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex min-h-11 cursor-pointer items-center justify-between py-2 text-sm text-white/90">
+    <label className="flex min-h-11 cursor-pointer items-center justify-between py-2 text-sm">
       <span>{label}</span>
       <button
         type="button"
@@ -147,7 +204,8 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
           onChange(!checked);
           haptics.light();
         }}
-        className={`relative h-7 w-12 rounded-full transition ${checked ? "bg-gradient-to-r from-fuchsia-400 to-cyan-300" : "bg-white/15"}`}
+        className={`relative h-7 w-12 rounded-full transition ${checked ? "bg-gradient-to-r from-fuchsia-400 to-cyan-300" : ""}`}
+        style={!checked ? { background: "var(--cw-glass-border)" } : undefined}
       >
         <span
           className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : ""}`}
@@ -231,6 +289,7 @@ function GameScreen({
   onComplete,
   onNext,
   onToggleSound,
+  onShowTutorial,
 }: {
   level: LevelDef;
   save: SaveData;
@@ -238,6 +297,7 @@ function GameScreen({
   onComplete: (id: string, moves: number) => void;
   onNext: (id: string) => void;
   onToggleSound: () => void;
+  onShowTutorial: () => void;
 }) {
   const [progress, setProgress] = useState(0);
   const [moves, setMoves] = useState(0);
@@ -276,6 +336,14 @@ function GameScreen({
             aria-label={save.settings.sound ? "Mute sound" : "Unmute sound"}
           >
             {save.settings.sound ? "🔊" : "🔇"}
+          </button>
+          <button
+            onClick={onShowTutorial}
+            className="glass-panel min-h-11 min-w-11 rounded-xl px-3 py-2 text-sm"
+            aria-label="How to play"
+            title="How to play"
+          >
+            ?
           </button>
         </div>
       </header>

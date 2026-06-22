@@ -348,44 +348,31 @@ export function GameBoard({
     const tiles = tilesRef.current;
     const a = tiles[drag.tileIdx];
     const dropIdx = drag.hoverIdx;
+    const { pad, tile } = sizeRef.current;
+    const fromVisualX = (drag.curX - pad - tile / 2) / tile;
+    const fromVisualY = (drag.curY - pad - tile / 2) / tile;
     dragRef.current = null;
     if (dropIdx == null || dropIdx === drag.tileIdx) {
-      // snap back
-      animateTile(a, a.col, a.row);
+      lerpFrom(a, fromVisualX, fromVisualY, a.col, a.row);
       return;
     }
     const b = tiles[dropIdx];
     if (b.anchor) {
-      animateTile(a, a.col, a.row);
+      lerpFrom(a, fromVisualX, fromVisualY, a.col, a.row);
       playTap();
       return;
     }
-    // swap colors + targetIndex; keep grid positions, animate visually as if tiles moved
-    // Visually: animate from b's pos -> a's pos and a's pos -> b's pos, then snap back logical.
-    // Simpler/clearer: swap entire tile structs in array — keep col/row constant per slot.
-    // We'll swap color + targetIndex between a and b; dragged tile is `a` which animates from current curXY back to a.col,a.row.
     [a.color, b.color] = [b.color, a.color];
     [a.targetIndex, b.targetIndex] = [b.targetIndex, a.targetIndex];
-    // animate
-    animateTile(a, a.col, a.row);
-    // give b a tiny bump
-    b.lerpFromX = b.col;
-    b.lerpFromY = b.row - 0.05;
-    b.lerpToX = b.col;
-    b.lerpToY = b.row;
-    b.lerpStart = performance.now();
-    b.lerpDur = ANIM_MS;
+    lerpFrom(a, fromVisualX, fromVisualY, a.col, a.row);
+    lerpFrom(b, b.col, b.row - 0.06, b.col, b.row);
     playSwap();
     haptics.swap();
     onMove();
     reportProgress();
   }
 
-  function animateTile(t: Tile, toCol: number, toRow: number) {
-    const { pad, tile } = sizeRef.current;
-    // current visual unit coords if mid-drag, derive from t.dx/dy or curX/curY (use curX if mid-drag was just released)
-    const fromX = (dragRef.current ? (dragRef.current.curX - pad - tile / 2) / tile : t.dx);
-    const fromY = (dragRef.current ? (dragRef.current.curY - pad - tile / 2) / tile : t.dy);
+  function lerpFrom(t: Tile, fromX: number, fromY: number, toCol: number, toRow: number) {
     t.lerpFromX = isFinite(fromX) ? fromX : t.dx;
     t.lerpFromY = isFinite(fromY) ? fromY : t.dy;
     t.lerpToX = toCol;
@@ -394,13 +381,16 @@ export function GameBoard({
     t.lerpDur = ANIM_MS;
   }
 
-  function onPointerCancel(e: React.PointerEvent<HTMLCanvasElement>) {
+  function onPointerCancel(_e: React.PointerEvent<HTMLCanvasElement>) {
     const drag = dragRef.current;
     if (!drag) return;
     drag.hum?.stop();
     const a = tilesRef.current[drag.tileIdx];
+    const { pad, tile } = sizeRef.current;
+    const fromVisualX = (drag.curX - pad - tile / 2) / tile;
+    const fromVisualY = (drag.curY - pad - tile / 2) / tile;
     dragRef.current = null;
-    animateTile(a, a.col, a.row);
+    lerpFrom(a, fromVisualX, fromVisualY, a.col, a.row);
   }
 
   return (

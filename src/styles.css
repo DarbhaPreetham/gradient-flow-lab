@@ -193,8 +193,6 @@
   color: #0F0F16;
   box-shadow: 0 0 40px -8px rgba(168, 85, 247, 0.6), 0 0 80px -20px rgba(56, 189, 248, 0.5);
   transition: transform 200ms ease, box-shadow 200ms ease;
-}
-@utility glow-button {
   &:hover { transform: translateY(-2px); box-shadow: 0 0 60px -8px rgba(168, 85, 247, 0.75), 0 0 100px -20px rgba(56, 189, 248, 0.6); }
   &:active { transform: translateY(0); }
 }

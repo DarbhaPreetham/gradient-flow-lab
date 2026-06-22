@@ -10,12 +10,22 @@ type Screen = { kind: "home" } | { kind: "gallery"; filter?: Difficulty } | { ki
 export function ChromaWeaveApp() {
   const [save, setSave] = useState<SaveData>(() => loadSave());
   const [screen, setScreen] = useState<Screen>({ kind: "home" });
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     saveSave(save);
     setAudioEnabled(save.settings.sound);
     setHapticsEnabled(save.settings.haptics);
   }, [save]);
+
+  // Apply theme to <html>
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("light", save.settings.theme === "light");
+    root.classList.toggle("dark", save.settings.theme === "dark");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", save.settings.theme === "light" ? "#F6F4FB" : "#0F0F16");
+  }, [save.settings.theme]);
 
   const updateSettings = (patch: Partial<SaveData["settings"]>) =>
     setSave((s) => ({ ...s, settings: { ...s.settings, ...patch } }));
@@ -31,17 +41,28 @@ export function ChromaWeaveApp() {
     });
   };
 
+  const startGame = (levelId: string) => {
+    unlockAudio();
+    if (!save.tutorialSeen) setShowTutorial(true);
+    setScreen({ kind: "game", levelId });
+  };
+
+  const finishTutorial = () => {
+    setShowTutorial(false);
+    setSave((s) => ({ ...s, tutorialSeen: true }));
+  };
+
   return (
     <main className="radial-bg min-h-dvh w-full overflow-hidden">
       {screen.kind === "home" && (
         <HomeScreen
           onPlay={() => {
-            unlockAudio();
             // resume latest unlocked, not-yet-completed level
             const next = LEVELS.find((l) => save.unlocked.includes(l.id) && !save.completed.includes(l.id)) ?? LEVELS[0];
-            setScreen({ kind: "game", levelId: next.id });
+            startGame(next.id);
           }}
           onGallery={(filter) => setScreen({ kind: "gallery", filter })}
+          onShowTutorial={() => setShowTutorial(true)}
           settings={save.settings}
           onSettings={updateSettings}
           completedCount={save.completed.length}
@@ -52,7 +73,7 @@ export function ChromaWeaveApp() {
           save={save}
           filter={screen.filter}
           onBack={() => setScreen({ kind: "home" })}
-          onPick={(id) => setScreen({ kind: "game", levelId: id })}
+          onPick={(id) => startGame(id)}
         />
       )}
       {screen.kind === "game" && (
@@ -68,8 +89,10 @@ export function ChromaWeaveApp() {
             else setScreen({ kind: "gallery" });
           }}
           onToggleSound={() => updateSettings({ sound: !save.settings.sound })}
+          onShowTutorial={() => setShowTutorial(true)}
         />
       )}
+      {showTutorial && <TutorialOverlay onDone={finishTutorial} />}
     </main>
   );
 }
@@ -77,22 +100,30 @@ export function ChromaWeaveApp() {
 function HomeScreen({
   onPlay,
   onGallery,
+  onShowTutorial,
   settings,
   onSettings,
   completedCount,
 }: {
   onPlay: () => void;
   onGallery: (d?: Difficulty) => void;
+  onShowTutorial: () => void;
   settings: SaveData["settings"];
   onSettings: (p: Partial<SaveData["settings"]>) => void;
   completedCount: number;
 }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-10">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle
+          theme={settings.theme}
+          onToggle={() => onSettings({ theme: settings.theme === "dark" ? "light" : "dark" })}
+        />
+      </div>
       <header className="mt-6 text-center">
-        <p className="font-display text-xs uppercase tracking-[0.4em] text-white/60">A Color Tapestry</p>
+        <p className="font-display text-xs uppercase tracking-[0.4em]" style={{ color: "var(--cw-muted-soft)" }}>A Color Tapestry</p>
         <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">ChromaWeave</h1>
-        <p className="mt-4 text-sm text-white/70">Weave gradients of light into living tapestries.</p>
+        <p className="mt-4 text-sm" style={{ color: "var(--cw-muted)" }}>Weave gradients of light into living tapestries.</p>
       </header>
 
       <div className="my-10 flex w-full flex-col items-center gap-4">
@@ -108,7 +139,7 @@ function HomeScreen({
             <button
               key={d}
               onClick={() => onGallery(d)}
-              className="glass-panel font-display rounded-xl px-2 py-3 text-xs font-semibold uppercase tracking-wider text-white/90 transition hover:bg-white/15"
+              className="glass-panel font-display rounded-xl px-2 py-3 text-xs font-semibold uppercase tracking-wider transition hover:opacity-90"
             >
               {d}
             </button>
@@ -116,27 +147,53 @@ function HomeScreen({
         </div>
         <button
           onClick={() => onGallery()}
-          className="glass-panel font-display w-full rounded-xl px-4 py-3 text-sm font-medium text-white/90 hover:bg-white/15"
+          className="glass-panel font-display w-full rounded-xl px-4 py-3 text-sm font-medium hover:opacity-90"
         >
           Browse all {LEVELS.length} tapestries • {completedCount} complete
+        </button>
+        <button
+          onClick={onShowTutorial}
+          className="font-display text-xs uppercase tracking-[0.3em] underline-offset-4 hover:underline"
+          style={{ color: "var(--cw-muted)" }}
+        >
+          How to play
         </button>
       </div>
 
       <section className="glass-panel w-full rounded-2xl p-5">
-        <h2 className="font-display mb-3 text-sm font-semibold uppercase tracking-wider text-white/70">Settings</h2>
+        <h2 className="font-display mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--cw-muted)" }}>Settings</h2>
+        <Toggle
+          label="Light mode"
+          checked={settings.theme === "light"}
+          onChange={(v) => onSettings({ theme: v ? "light" : "dark" })}
+        />
         <Toggle label="Sound FX" checked={settings.sound} onChange={(v) => onSettings({ sound: v })} />
         <Toggle label="Haptics" checked={settings.haptics} onChange={(v) => onSettings({ haptics: v })} />
         <Toggle label="Color Blind Assist" checked={settings.colorBlind} onChange={(v) => onSettings({ colorBlind: v })} />
       </section>
 
-      <footer className="mt-8 text-center text-xs text-white/40">Crafted with light, color, and patience.</footer>
+      <footer className="mt-8 text-center text-xs" style={{ color: "var(--cw-muted-soft)" }}>Crafted with light, color, and patience.</footer>
     </div>
+  );
+}
+
+function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className="glass-panel font-display flex h-11 min-w-11 items-center gap-2 rounded-full px-4 text-sm"
+    >
+      <span aria-hidden>{theme === "dark" ? "🌙" : "☀️"}</span>
+      <span className="hidden sm:inline">{theme === "dark" ? "Dark" : "Light"}</span>
+    </button>
   );
 }
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex min-h-11 cursor-pointer items-center justify-between py-2 text-sm text-white/90">
+    <label className="flex min-h-11 cursor-pointer items-center justify-between py-2 text-sm">
       <span>{label}</span>
       <button
         type="button"
@@ -147,7 +204,8 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
           onChange(!checked);
           haptics.light();
         }}
-        className={`relative h-7 w-12 rounded-full transition ${checked ? "bg-gradient-to-r from-fuchsia-400 to-cyan-300" : "bg-white/15"}`}
+        className={`relative h-7 w-12 rounded-full transition ${checked ? "bg-gradient-to-r from-fuchsia-400 to-cyan-300" : ""}`}
+        style={!checked ? { background: "var(--cw-glass-border)" } : undefined}
       >
         <span
           className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : ""}`}
@@ -231,6 +289,7 @@ function GameScreen({
   onComplete,
   onNext,
   onToggleSound,
+  onShowTutorial,
 }: {
   level: LevelDef;
   save: SaveData;
@@ -238,6 +297,7 @@ function GameScreen({
   onComplete: (id: string, moves: number) => void;
   onNext: (id: string) => void;
   onToggleSound: () => void;
+  onShowTutorial: () => void;
 }) {
   const [progress, setProgress] = useState(0);
   const [moves, setMoves] = useState(0);
@@ -276,6 +336,14 @@ function GameScreen({
             aria-label={save.settings.sound ? "Mute sound" : "Unmute sound"}
           >
             {save.settings.sound ? "🔊" : "🔇"}
+          </button>
+          <button
+            onClick={onShowTutorial}
+            className="glass-panel min-h-11 min-w-11 rounded-xl px-3 py-2 text-sm"
+            aria-label="How to play"
+            title="How to play"
+          >
+            ?
           </button>
         </div>
       </header>
@@ -374,6 +442,216 @@ function VictoryModal({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+type TutorialStep = {
+  title: string;
+  body: string;
+  icon: string;
+  visual: "grid" | "drag" | "anchor" | "progress" | "hint" | "victory";
+};
+
+const TUTORIAL_STEPS: TutorialStep[] = [
+  {
+    icon: "🎨",
+    title: "Welcome to ChromaWeave",
+    body: "You are a weaver of light. Each level is a tapestry whose colors have been gently shuffled. Your task is to put every color back into its perfect place — calmly, beautifully, at your own pace.",
+    visual: "grid",
+  },
+  {
+    icon: "👆",
+    title: "Drag a tile",
+    body: "Press and hold any tile, then drag it onto another tile. When you let go, the two tiles swap colors. There is no timer — take a breath, look at the gradient, and follow the flow of light.",
+    visual: "drag",
+  },
+  {
+    icon: "📌",
+    title: "Anchor tiles guide you",
+    body: "Tiles marked with a small dot are anchors — they are already in the right place and cannot move. Use them as a compass: every other tile flows smoothly between the anchors.",
+    visual: "anchor",
+  },
+  {
+    icon: "🌈",
+    title: "Follow the gradient",
+    body: "Colors should fade smoothly from one anchor to the next. If a tile breaks the flow, it belongs somewhere else. Look at its neighbors above, below, left and right — the right home will feel obvious.",
+    visual: "grid",
+  },
+  {
+    icon: "📈",
+    title: "Watch your progress",
+    body: "The bar at the bottom shows how much of the tapestry is woven. Each correct tile lights it up. There are no wrong moves — only steps closer to the finished pattern.",
+    visual: "progress",
+  },
+  {
+    icon: "✨",
+    title: "Stuck? Ask for a hint",
+    body: "Tap the ✨ Hint button anytime to see where a misplaced tile wants to go. Tap ↺ to reshuffle the level, 🔊 to mute, and ? to revisit this guide.",
+    visual: "hint",
+  },
+  {
+    icon: "🏆",
+    title: "Complete the tapestry",
+    body: "When every tile is home, the tapestry comes alive — and the next one unlocks. Beginner levels are small and gentle; Casual sharpens your eye; Master is a slow, meditative challenge. Ready to weave?",
+    visual: "victory",
+  },
+];
+
+function TutorialOverlay({ onDone }: { onDone: () => void }) {
+  const [step, setStep] = useState(0);
+  const s = TUTORIAL_STEPS[step];
+  const isLast = step === TUTORIAL_STEPS.length - 1;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onDone();
+      if (e.key === "ArrowRight") setStep((i) => Math.min(i + 1, TUTORIAL_STEPS.length - 1));
+      if (e.key === "ArrowLeft") setStep((i) => Math.max(i - 1, 0));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onDone]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="How to play ChromaWeave"
+      className="fixed inset-0 z-50 flex items-center justify-center px-5 backdrop-blur-md"
+      style={{ background: "var(--cw-overlay)" }}
+    >
+      <div className="glass-panel w-full max-w-md rounded-3xl p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="font-display text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--cw-muted-soft)" }}>
+            Step {step + 1} of {TUTORIAL_STEPS.length}
+          </span>
+          <button
+            onClick={onDone}
+            className="font-display text-xs uppercase tracking-wider opacity-70 hover:opacity-100"
+            aria-label="Skip tutorial"
+          >
+            Skip
+          </button>
+        </div>
+
+        <TutorialVisual kind={s.visual} />
+
+        <div className="mt-5 text-center">
+          <div className="text-4xl" aria-hidden>{s.icon}</div>
+          <h3 className="font-display mt-2 text-2xl font-extrabold">{s.title}</h3>
+          <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--cw-muted)" }}>{s.body}</p>
+        </div>
+
+        <div className="mt-5 flex items-center justify-center gap-1.5" aria-hidden>
+          {TUTORIAL_STEPS.map((_, i) => (
+            <span
+              key={i}
+              className="h-1.5 rounded-full transition-all"
+              style={{
+                width: i === step ? 24 : 8,
+                background: i === step ? "var(--cw-fg)" : "var(--cw-glass-border)",
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="mt-5 flex gap-3">
+          <button
+            disabled={step === 0}
+            onClick={() => setStep((i) => Math.max(i - 1, 0))}
+            className="glass-panel font-display min-h-12 flex-1 rounded-2xl px-4 py-3 text-sm font-medium disabled:opacity-40"
+          >
+            ← Back
+          </button>
+          <button
+            onClick={() => (isLast ? onDone() : setStep((i) => i + 1))}
+            className="glow-button font-display min-h-12 flex-[1.4] rounded-2xl px-4 py-3 text-base font-bold"
+          >
+            {isLast ? "Start weaving ✨" : "Next →"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
+  // Tiny illustrative 4x4 swatch derived from a warm gradient
+  const cells = useMemo(() => {
+    const palette = [
+      "#FFD89B", "#FFB778", "#FF8E64", "#FF6F61",
+      "#F5C39A", "#F0A07A", "#E07A6A", "#C04848",
+      "#D9A38F", "#C57F84", "#A66D8E", "#84529A",
+      "#A88FB8", "#8A7BC2", "#6C7CD0", "#4D6BD8",
+    ];
+    return palette;
+  }, []);
+
+  const highlight =
+    kind === "drag" ? 5 :
+    kind === "anchor" ? -1 :
+    kind === "hint" ? 10 : -2;
+  const anchors = new Set(kind === "anchor" ? [0, 3, 12, 15] : []);
+  const dragTarget = kind === "drag" ? 10 : -1;
+
+  if (kind === "progress") {
+    return (
+      <div className="rounded-2xl p-4" style={{ background: "var(--cw-glass-border)" }}>
+        <div className="mb-2 flex justify-between text-xs" style={{ color: "var(--cw-muted)" }}>
+          <span>62% woven</span><span>14 moves</span>
+        </div>
+        <div className="h-3 w-full overflow-hidden rounded-full" style={{ background: "var(--cw-glass-bg)" }}>
+          <div className="h-full rounded-full bg-gradient-to-r from-amber-300 via-fuchsia-400 to-cyan-300" style={{ width: "62%" }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (kind === "victory") {
+    return (
+      <div className="grid grid-cols-4 gap-1.5 rounded-2xl p-3" style={{ background: "var(--cw-glass-border)" }}>
+        {cells.map((c, i) => (
+          <div
+            key={i}
+            className="aspect-square rounded-md"
+            style={{
+              background: c,
+              boxShadow: "0 0 12px rgba(255,255,255,0.25)",
+              animation: `chromaweave-pulse ${2 + (i % 4) * 0.2}s ease-in-out infinite`,
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative grid grid-cols-4 gap-1.5 rounded-2xl p-3" style={{ background: "var(--cw-glass-border)" }}>
+      {cells.map((c, i) => {
+        const isHighlight = i === highlight;
+        const isAnchor = anchors.has(i);
+        const isTarget = i === dragTarget;
+        return (
+          <div
+            key={i}
+            className="relative aspect-square rounded-md"
+            style={{
+              background: c,
+              outline: isHighlight ? "3px solid rgba(255,255,255,0.95)" : isTarget ? "2px dashed rgba(255,255,255,0.85)" : "none",
+              outlineOffset: 1,
+              transform: isHighlight && kind === "drag" ? "translate(8px, 10px) scale(1.08)" : "none",
+              transition: "transform 400ms ease",
+              animation: isHighlight && kind === "hint" ? "chromaweave-pulse 1.2s ease-in-out infinite" : undefined,
+              zIndex: isHighlight ? 2 : 1,
+            }}
+          >
+            {isAnchor && (
+              <span className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/80" />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

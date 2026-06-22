@@ -6,6 +6,7 @@ export type Settings = {
   sound: boolean;
   haptics: boolean;
   colorBlind: boolean;
+  theme: "light" | "dark";
 };
 
 export type SaveData = {
@@ -13,13 +14,15 @@ export type SaveData = {
   unlocked: string[];
   completed: string[];
   best: Record<string, number>;
+  tutorialSeen: boolean;
 };
 
 const DEFAULT: SaveData = {
-  settings: { sound: true, haptics: true, colorBlind: false },
+  settings: { sound: true, haptics: true, colorBlind: false, theme: "dark" },
   unlocked: ["l1"],
   completed: [],
   best: {},
+  tutorialSeen: false,
 };
 
 export function loadSave(): SaveData {
@@ -33,6 +36,7 @@ export function loadSave(): SaveData {
       unlocked: parsed.unlocked ?? DEFAULT.unlocked,
       completed: parsed.completed ?? [],
       best: parsed.best ?? {},
+      tutorialSeen: parsed.tutorialSeen ?? false,
     };
   } catch {
     return { ...DEFAULT };

@@ -140,12 +140,42 @@
   }
 
   body {
-    background: #0F0F16;
-    color: oklch(0.97 0.01 280);
+    background: var(--cw-bg);
+    color: var(--cw-fg);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     overscroll-behavior: none;
+    transition: background-color 400ms ease, color 400ms ease;
   }
+}
+
+/* ChromaWeave theme tokens. Default = dark; .light overrides. */
+:root {
+  --cw-bg: #0F0F16;
+  --cw-fg: oklch(0.97 0.01 280);
+  --cw-glass-bg: rgba(255, 255, 255, 0.06);
+  --cw-glass-border: rgba(255, 255, 255, 0.12);
+  --cw-glass-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  --cw-radial-1: rgba(168, 85, 247, 0.25);
+  --cw-radial-2: rgba(56, 189, 248, 0.22);
+  --cw-radial-3: rgba(244, 114, 182, 0.22);
+  --cw-muted: rgba(255, 255, 255, 0.7);
+  --cw-muted-soft: rgba(255, 255, 255, 0.55);
+  --cw-overlay: rgba(0, 0, 0, 0.72);
+}
+
+html.light {
+  --cw-bg: #F6F4FB;
+  --cw-fg: #1B1530;
+  --cw-glass-bg: rgba(255, 255, 255, 0.7);
+  --cw-glass-border: rgba(27, 21, 48, 0.12);
+  --cw-glass-shadow: 0 10px 40px -12px rgba(91, 33, 182, 0.22);
+  --cw-radial-1: rgba(236, 72, 153, 0.28);
+  --cw-radial-2: rgba(59, 130, 246, 0.22);
+  --cw-radial-3: rgba(251, 191, 36, 0.28);
+  --cw-muted: rgba(27, 21, 48, 0.72);
+  --cw-muted-soft: rgba(27, 21, 48, 0.5);
+  --cw-overlay: rgba(247, 242, 255, 0.78);
 }
 
 @utility font-display {
@@ -154,18 +184,20 @@
 }
 
 @utility glass-panel {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--cw-glass-bg);
   backdrop-filter: blur(18px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--cw-glass-border);
+  box-shadow: var(--cw-glass-shadow);
+  color: var(--cw-fg);
 }
 
 @utility radial-bg {
   background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(168, 85, 247, 0.25), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 80% 20%, rgba(56, 189, 248, 0.22), transparent 60%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(244, 114, 182, 0.22), transparent 60%),
-    #0F0F16;
+    radial-gradient(ellipse 80% 60% at 20% 10%, var(--cw-radial-1), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 20%, var(--cw-radial-2), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, var(--cw-radial-3), transparent 60%),
+    var(--cw-bg);
+  color: var(--cw-fg);
 }
 
 @keyframes chromaweave-pulse {

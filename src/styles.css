@@ -59,12 +59,14 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-display: "Outfit", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", "Outfit", system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.13 0.02 280);
+  --foreground: oklch(0.97 0.01 280);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -138,7 +140,59 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background: #0F0F16;
+    color: oklch(0.97 0.01 280);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior: none;
   }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+@utility glass-panel {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+@utility radial-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(168, 85, 247, 0.25), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 20%, rgba(56, 189, 248, 0.22), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(244, 114, 182, 0.22), transparent 60%),
+    #0F0F16;
+}
+
+@keyframes chromaweave-pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+@keyframes chromaweave-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@utility title-shimmer {
+  background: linear-gradient(90deg, #f0abfc, #67e8f9, #fde68a, #f0abfc);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: chromaweave-shimmer 8s ease-in-out infinite;
+}
+
+@utility glow-button {
+  background: linear-gradient(135deg, oklch(0.7 0.2 320), oklch(0.7 0.18 230));
+  color: #0F0F16;
+  box-shadow: 0 0 40px -8px rgba(168, 85, 247, 0.6), 0 0 80px -20px rgba(56, 189, 248, 0.5);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+  &:hover { transform: translateY(-2px); box-shadow: 0 0 60px -8px rgba(168, 85, 247, 0.75), 0 0 100px -20px rgba(56, 189, 248, 0.6); }
+  &:active { transform: translateY(0); }
 }

@@ -91,7 +91,7 @@ function HomeScreen({
     <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-10">
       <header className="mt-6 text-center">
         <p className="font-display text-xs uppercase tracking-[0.4em] text-white/60">A Color Tapestry</p>
-        <h1 className="font-display title-shimmer mt-3 text-6xl font-extrabold leading-none">ChromaWeave</h1>
+        <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">ChromaWeave</h1>
         <p className="mt-4 text-sm text-white/70">Weave gradients of light into living tapestries.</p>
       </header>
 

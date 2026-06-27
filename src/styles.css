@@ -228,3 +228,17 @@ html.light {
   &:hover { transform: translateY(-2px); box-shadow: 0 0 60px -8px rgba(168, 85, 247, 0.75), 0 0 100px -20px rgba(56, 189, 248, 0.6); }
   &:active { transform: translateY(0); }
 }
+
+@utility auth-input {
+  width: 100%;
+  min-height: 2.75rem;
+  border-radius: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  background: var(--cw-glass-bg);
+  border: 1px solid var(--cw-glass-border);
+  color: var(--cw-fg);
+  font-size: 0.95rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  &:focus { outline: none; border-color: rgba(244,114,182,0.7); box-shadow: 0 0 0 3px rgba(244,114,182,0.2); }
+  &::placeholder { color: var(--cw-muted-soft); }
+}

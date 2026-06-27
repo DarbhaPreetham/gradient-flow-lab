@@ -2,10 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { LEVELS, type Difficulty, type LevelDef } from "../utils/colors";
 import { GameBoard, generatePreview } from "./GameBoard";
 import { loadSave, saveSave, type SaveData } from "../utils/storage";
-import { setAudioEnabled, playVictory, unlockAudio } from "../utils/audio";
+import { setAudioEnabled, playVictory, unlockAudio, startAmbient, stopAmbient } from "../utils/audio";
 import { haptics, setHapticsEnabled } from "../utils/haptics";
+import { useAuth } from "../hooks/useAuth";
+import { AuthScreen } from "./AuthScreen";
+import { fetchProgress, pushProgress, mergeProgress } from "../utils/cloudSync";
+import { supabase } from "@/integrations/supabase/client";
 
-type Screen = { kind: "home" } | { kind: "gallery"; filter?: Difficulty } | { kind: "game"; levelId: string };
+type Screen =
+  | { kind: "home" }
+  | { kind: "gallery"; filter?: Difficulty }
+  | { kind: "game"; levelId: string }
+  | { kind: "auth" };
 
 export function ChromaWeaveApp() {
   // Use defaults on first render to keep SSR/CSR markup identical, then hydrate from localStorage.
@@ -13,6 +21,7 @@ export function ChromaWeaveApp() {
   const [hydrated, setHydrated] = useState(false);
   const [screen, setScreen] = useState<Screen>({ kind: "home" });
   const [showTutorial, setShowTutorial] = useState(false);
+  const auth = useAuth();
 
   useEffect(() => {
     setSave(loadSave());
@@ -25,6 +34,35 @@ export function ChromaWeaveApp() {
     setAudioEnabled(save.settings.sound);
     setHapticsEnabled(save.settings.haptics);
   }, [save, hydrated]);
+
+  // Cloud sync: pull on sign-in, push on every save change.
+  useEffect(() => {
+    if (!hydrated || !auth.user) return;
+    let cancelled = false;
+    fetchProgress(auth.user.id).then((cloud) => {
+      if (cancelled || !cloud || !auth.user) return;
+      setSave((local) => {
+        const merged = mergeProgress(local, cloud);
+        void pushProgress(auth.user!.id, merged);
+        return merged;
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, auth.user?.id]);
+
+  useEffect(() => {
+    if (!hydrated || !auth.user) return;
+    void pushProgress(auth.user.id, save);
+  }, [save.unlocked, save.completed, save.best, auth.user?.id, hydrated]);
+
+  // Soothing ambient pad while inside a game; stops on home/auth/gallery.
+  useEffect(() => {
+    if (screen.kind === "game" && save.settings.sound) startAmbient();
+    else stopAmbient();
+    return () => stopAmbient();
+  }, [screen.kind, save.settings.sound]);
 
   // Apply theme to <html>
   useEffect(() => {
@@ -60,6 +98,15 @@ export function ChromaWeaveApp() {
     setSave((s) => ({ ...s, tutorialSeen: true }));
   };
 
+  if (screen.kind === "auth") {
+    return (
+      <AuthScreen
+        onClose={() => setScreen({ kind: "home" })}
+        onSignedIn={() => setScreen({ kind: "home" })}
+      />
+    );
+  }
+
   return (
     <main className="radial-bg min-h-dvh w-full overflow-hidden">
       {screen.kind === "home" && (
@@ -74,6 +121,11 @@ export function ChromaWeaveApp() {
           settings={save.settings}
           onSettings={updateSettings}
           completedCount={save.completed.length}
+          auth={auth}
+          onAuth={() => setScreen({ kind: "auth" })}
+          onSignOut={async () => {
+            await supabase.auth.signOut();
+          }}
         />
       )}
       {screen.kind === "gallery" && (
@@ -112,6 +164,9 @@ function HomeScreen({
   settings,
   onSettings,
   completedCount,
+  auth,
+  onAuth,
+  onSignOut,
 }: {
   onPlay: () => void;
   onGallery: (d?: Difficulty) => void;
@@ -119,10 +174,14 @@ function HomeScreen({
   settings: SaveData["settings"];
   onSettings: (p: Partial<SaveData["settings"]>) => void;
   completedCount: number;
+  auth: ReturnType<typeof useAuth>;
+  onAuth: () => void;
+  onSignOut: () => void | Promise<void>;
 }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-10">
-      <div className="absolute right-4 top-4 z-10">
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+        <AccountChip auth={auth} onAuth={onAuth} onSignOut={onSignOut} />
         <ThemeToggle
           theme={settings.theme}
           onToggle={() => onSettings({ theme: settings.theme === "dark" ? "light" : "dark" })}
@@ -196,6 +255,78 @@ function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: (
       <span aria-hidden>{theme === "dark" ? "🌙" : "☀️"}</span>
       <span className="hidden sm:inline">{theme === "dark" ? "Dark" : "Light"}</span>
     </button>
+  );
+}
+
+function AccountChip({
+  auth,
+  onAuth,
+  onSignOut,
+}: {
+  auth: ReturnType<typeof useAuth>;
+  onAuth: () => void;
+  onSignOut: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  if (auth.loading) return null;
+  if (!auth.user) {
+    return (
+      <button
+        type="button"
+        onClick={onAuth}
+        className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold"
+        aria-label="Sign in"
+      >
+        <span aria-hidden>👤</span>
+        <span>Sign in</span>
+      </button>
+    );
+  }
+  const name = auth.profile?.display_name || auth.user.email?.split("@")[0] || "Weaver";
+  const initial = name.charAt(0).toUpperCase();
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
+      >
+        {auth.profile?.avatar_url ? (
+          <img src={auth.profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+        ) : (
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-400 to-cyan-300 text-sm font-bold text-slate-900">
+            {initial}
+          </span>
+        )}
+        <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="glass-panel absolute right-0 top-12 z-20 w-48 rounded-2xl p-2 text-sm shadow-lg"
+        >
+          <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>
+            Signed in as
+            <div className="mt-0.5 truncate font-semibold" style={{ color: "var(--cw-fg)" }}>
+              {auth.user.email}
+            </div>
+          </div>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={async () => {
+              setOpen(false);
+              await onSignOut();
+            }}
+            className="font-display w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-white/10"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -43,6 +43,14 @@ export function loadSave(): SaveData {
   }
 }
 
+loadSave.defaults = (): SaveData => ({
+  ...DEFAULT,
+  settings: { ...DEFAULT.settings },
+  unlocked: [...DEFAULT.unlocked],
+  completed: [...DEFAULT.completed],
+  best: { ...DEFAULT.best },
+});
+
 export function saveSave(data: SaveData) {
   if (typeof window === "undefined") return;
   try {

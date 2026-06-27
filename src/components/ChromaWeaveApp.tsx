@@ -2,10 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { LEVELS, type Difficulty, type LevelDef } from "../utils/colors";
 import { GameBoard, generatePreview } from "./GameBoard";
 import { loadSave, saveSave, type SaveData } from "../utils/storage";
-import { setAudioEnabled, playVictory, unlockAudio } from "../utils/audio";
+import { setAudioEnabled, playVictory, unlockAudio, startAmbient, stopAmbient } from "../utils/audio";
 import { haptics, setHapticsEnabled } from "../utils/haptics";
+import { useAuth } from "../hooks/useAuth";
+import { AuthScreen } from "./AuthScreen";
+import { fetchProgress, pushProgress, mergeProgress } from "../utils/cloudSync";
+import { supabase } from "@/integrations/supabase/client";
 
-type Screen = { kind: "home" } | { kind: "gallery"; filter?: Difficulty } | { kind: "game"; levelId: string };
+type Screen =
+  | { kind: "home" }
+  | { kind: "gallery"; filter?: Difficulty }
+  | { kind: "game"; levelId: string }
+  | { kind: "auth" };
 
 export function ChromaWeaveApp() {
   // Use defaults on first render to keep SSR/CSR markup identical, then hydrate from localStorage.
@@ -13,6 +21,7 @@ export function ChromaWeaveApp() {
   const [hydrated, setHydrated] = useState(false);
   const [screen, setScreen] = useState<Screen>({ kind: "home" });
   const [showTutorial, setShowTutorial] = useState(false);
+  const auth = useAuth();
 
   useEffect(() => {
     setSave(loadSave());
@@ -25,6 +34,35 @@ export function ChromaWeaveApp() {
     setAudioEnabled(save.settings.sound);
     setHapticsEnabled(save.settings.haptics);
   }, [save, hydrated]);
+
+  // Cloud sync: pull on sign-in, push on every save change.
+  useEffect(() => {
+    if (!hydrated || !auth.user) return;
+    let cancelled = false;
+    fetchProgress(auth.user.id).then((cloud) => {
+      if (cancelled || !cloud || !auth.user) return;
+      setSave((local) => {
+        const merged = mergeProgress(local, cloud);
+        void pushProgress(auth.user!.id, merged);
+        return merged;
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, auth.user?.id]);
+
+  useEffect(() => {
+    if (!hydrated || !auth.user) return;
+    void pushProgress(auth.user.id, save);
+  }, [save.unlocked, save.completed, save.best, auth.user?.id, hydrated]);
+
+  // Soothing ambient pad while inside a game; stops on home/auth/gallery.
+  useEffect(() => {
+    if (screen.kind === "game" && save.settings.sound) startAmbient();
+    else stopAmbient();
+    return () => stopAmbient();
+  }, [screen.kind, save.settings.sound]);
 
   // Apply theme to <html>
   useEffect(() => {
@@ -60,6 +98,15 @@ export function ChromaWeaveApp() {
     setSave((s) => ({ ...s, tutorialSeen: true }));
   };
 
+  if (screen.kind === "auth") {
+    return (
+      <AuthScreen
+        onClose={() => setScreen({ kind: "home" })}
+        onSignedIn={() => setScreen({ kind: "home" })}
+      />
+    );
+  }
+
   return (
     <main className="radial-bg min-h-dvh w-full overflow-hidden">
       {screen.kind === "home" && (
@@ -74,6 +121,11 @@ export function ChromaWeaveApp() {
           settings={save.settings}
           onSettings={updateSettings}
           completedCount={save.completed.length}
+          auth={auth}
+          onAuth={() => setScreen({ kind: "auth" })}
+          onSignOut={async () => {
+            await supabase.auth.signOut();
+          }}
         />
       )}
       {screen.kind === "gallery" && (

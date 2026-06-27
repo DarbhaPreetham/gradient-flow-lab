@@ -304,6 +304,8 @@ function GameScreen({
   const [hintToken, setHintToken] = useState(0);
   const [resetToken, setResetToken] = useState(0);
   const [victory, setVictory] = useState(false);
+  const [goalExpanded, setGoalExpanded] = useState(false);
+  const goalPreview = useMemo(() => generatePreview(level, 220), [level.id]);
 
   useEffect(() => {
     setProgress(0);
@@ -348,7 +350,27 @@ function GameScreen({
         </div>
       </header>
 
-      <div className="flex flex-1 items-center justify-center">
+      <div className="relative flex flex-1 items-center justify-center">
+        <button
+          type="button"
+          onClick={() => setGoalExpanded((v) => !v)}
+          aria-label={goalExpanded ? "Shrink goal preview" : "Enlarge goal preview"}
+          className="glass-panel absolute left-2 top-2 z-10 flex flex-col items-center gap-1 rounded-xl p-2 transition"
+          title="Goal gradient — arrange tiles to match"
+        >
+          <img
+            src={goalPreview}
+            alt="Goal gradient preview"
+            className={`rounded-md transition-all ${goalExpanded ? "h-32 w-32" : "h-14 w-14"}`}
+            style={{ imageRendering: "pixelated" as const }}
+          />
+          <span
+            className="font-display text-[9px] uppercase tracking-[0.2em]"
+            style={{ color: "var(--cw-muted)" }}
+          >
+            Goal
+          </span>
+        </button>
         <GameBoard
           level={level}
           colorBlind={save.settings.colorBlind}

@@ -164,6 +164,9 @@ function HomeScreen({
   settings,
   onSettings,
   completedCount,
+  auth,
+  onAuth,
+  onSignOut,
 }: {
   onPlay: () => void;
   onGallery: (d?: Difficulty) => void;
@@ -171,10 +174,14 @@ function HomeScreen({
   settings: SaveData["settings"];
   onSettings: (p: Partial<SaveData["settings"]>) => void;
   completedCount: number;
+  auth: ReturnType<typeof useAuth>;
+  onAuth: () => void;
+  onSignOut: () => void | Promise<void>;
 }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-10">
-      <div className="absolute right-4 top-4 z-10">
+      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+        <AccountChip auth={auth} onAuth={onAuth} onSignOut={onSignOut} />
         <ThemeToggle
           theme={settings.theme}
           onToggle={() => onSettings({ theme: settings.theme === "dark" ? "light" : "dark" })}

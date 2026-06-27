@@ -8,15 +8,23 @@ import { haptics, setHapticsEnabled } from "../utils/haptics";
 type Screen = { kind: "home" } | { kind: "gallery"; filter?: Difficulty } | { kind: "game"; levelId: string };
 
 export function ChromaWeaveApp() {
-  const [save, setSave] = useState<SaveData>(() => loadSave());
+  // Use defaults on first render to keep SSR/CSR markup identical, then hydrate from localStorage.
+  const [save, setSave] = useState<SaveData>(() => loadSave.defaults());
+  const [hydrated, setHydrated] = useState(false);
   const [screen, setScreen] = useState<Screen>({ kind: "home" });
   const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
+    setSave(loadSave());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     saveSave(save);
     setAudioEnabled(save.settings.sound);
     setHapticsEnabled(save.settings.haptics);
-  }, [save]);
+  }, [save, hydrated]);
 
   // Apply theme to <html>
   useEffect(() => {
@@ -355,17 +363,17 @@ function GameScreen({
           type="button"
           onClick={() => setGoalExpanded((v) => !v)}
           aria-label={goalExpanded ? "Shrink goal preview" : "Enlarge goal preview"}
-          className="glass-panel absolute left-2 top-2 z-10 flex flex-col items-center gap-1 rounded-xl p-2 transition"
+          className="glass-panel absolute left-0 top-0 z-10 flex items-center gap-2 rounded-xl px-2 py-1.5 transition"
           title="Goal gradient — arrange tiles to match"
         >
           <img
             src={goalPreview}
             alt="Goal gradient preview"
-            className={`rounded-md transition-all ${goalExpanded ? "h-32 w-32" : "h-14 w-14"}`}
+            className={`rounded-md transition-all ${goalExpanded ? "h-24 w-24" : "h-9 w-9"}`}
             style={{ imageRendering: "pixelated" as const }}
           />
           <span
-            className="font-display text-[9px] uppercase tracking-[0.2em]"
+            className="font-display text-[9px] font-semibold uppercase tracking-[0.18em] leading-none"
             style={{ color: "var(--cw-muted)" }}
           >
             Goal

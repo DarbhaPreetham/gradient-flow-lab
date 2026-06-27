@@ -258,6 +258,78 @@ function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: (
   );
 }
 
+function AccountChip({
+  auth,
+  onAuth,
+  onSignOut,
+}: {
+  auth: ReturnType<typeof useAuth>;
+  onAuth: () => void;
+  onSignOut: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  if (auth.loading) return null;
+  if (!auth.user) {
+    return (
+      <button
+        type="button"
+        onClick={onAuth}
+        className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold"
+        aria-label="Sign in"
+      >
+        <span aria-hidden>👤</span>
+        <span>Sign in</span>
+      </button>
+    );
+  }
+  const name = auth.profile?.display_name || auth.user.email?.split("@")[0] || "Weaver";
+  const initial = name.charAt(0).toUpperCase();
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
+      >
+        {auth.profile?.avatar_url ? (
+          <img src={auth.profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+        ) : (
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-400 to-cyan-300 text-sm font-bold text-slate-900">
+            {initial}
+          </span>
+        )}
+        <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="glass-panel absolute right-0 top-12 z-20 w-48 rounded-2xl p-2 text-sm shadow-lg"
+        >
+          <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>
+            Signed in as
+            <div className="mt-0.5 truncate font-semibold" style={{ color: "var(--cw-fg)" }}>
+              {auth.user.email}
+            </div>
+          </div>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={async () => {
+              setOpen(false);
+              await onSignOut();
+            }}
+            className="font-display w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-white/10"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <label className="flex min-h-11 cursor-pointer items-center justify-between py-2 text-sm">

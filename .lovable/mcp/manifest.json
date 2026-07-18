@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "sdk_version": "0.23.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ilfefunswjttjcgqkuoo.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "chromaweave-mcp",
+      "version": "0.1.0",
+      "title": "ChromaWeave"
+    },
+    "tools": [
+      {
+        "name": "get_profile",
+        "title": "Get my ChromaWeave profile",
+        "description": "Return the signed-in user's ChromaWeave display name and avatar.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_progress",
+        "title": "Get my game progress",
+        "description": "Return the signed-in user's ChromaWeave progress: unlocked levels, completed levels, and best move counts per level.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "reset_progress",
+        "title": "Reset my game progress",
+        "description": "Reset the signed-in user's ChromaWeave progress back to the first level. This clears completed levels and best scores. Requires explicit confirm=true.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "confirm": {
+              "type": "boolean",
+              "description": "Must be true to actually reset progress. false performs a dry run."
+            }
+          },
+          "required": [
+            "confirm"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

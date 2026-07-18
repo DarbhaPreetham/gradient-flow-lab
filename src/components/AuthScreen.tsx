@@ -12,7 +12,15 @@ const passwordSchema = z
   .max(128, "Password too long");
 const nameSchema = z.string().trim().min(1, "Name required").max(60);
 
-export function AuthScreen({ onClose, onSignedIn }: { onClose: () => void; onSignedIn: () => void }) {
+export function AuthScreen({
+  onClose,
+  onSignedIn,
+  next,
+}: {
+  onClose: () => void;
+  onSignedIn: () => void;
+  next?: string;
+}) {
   const [mode, setMode] = useState<Mode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,8 +39,12 @@ export function AuthScreen({ onClose, onSignedIn }: { onClose: () => void; onSig
     reset();
     setBusy(true);
     try {
+      const redirectBase = window.location.origin;
+      const redirectUri = next
+        ? `${redirectBase}/auth?next=${encodeURIComponent(next)}`
+        : redirectBase;
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUri,
       });
       if (result.error) {
         setError(result.error instanceof Error ? result.error.message : "Google sign-in failed.");
@@ -61,11 +73,14 @@ export function AuthScreen({ onClose, onSignedIn }: { onClose: () => void; onSig
       } else if (mode === "signup") {
         const cleanName = nameSchema.parse(name);
         const cleanPw = passwordSchema.parse(password);
+        const emailRedirectTo = next
+          ? `${window.location.origin}/auth?next=${encodeURIComponent(next)}`
+          : window.location.origin;
         const { error } = await supabase.auth.signUp({
           email: cleanEmail,
           password: cleanPw,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo,
             data: { display_name: cleanName },
           },
         });

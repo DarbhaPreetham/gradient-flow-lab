@@ -1,7 +1,8 @@
 # ChromaWeave Roadmap
 
 ## In progress
-- [ ] Guide user to connect GitHub sync and push to a new repository
+- [ ] Remove `.env` from the public GitHub repo (`.env` is now ignored locally)
+- [ ] Verify repo CI passes after the next Lovable sync
 
 ## Completed
 - [x] Core ChromaWeave puzzle game with 12 levels and 3 difficulty groups
@@ -13,9 +14,4 @@
 - [x] GitHub Actions CI/CD workflow (typecheck, lint, build, mobile sync)
 - [x] OAuth-protected MCP agent integration (`/mcp`)
 - [x] Comprehensive repository documentation (README, architecture, levels, security, MCP, mobile, deployment, privacy, terms)
-
-## Up next (after GitHub sync)
-- [ ] Verify repo push and CI passes
-- [ ] Configure custom domain (`chromaweave.app` recommended)
-- [ ] Publish production web app
-- [ ] Build native Android/iOS artifacts when developer accounts are ready
+- [x] GitHub sync connected and pushed to `https://github.com/DarbhaPreetham/gradient-flow-lab`

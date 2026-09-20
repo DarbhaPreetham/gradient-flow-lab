@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LEVELS, type Difficulty, type LevelDef } from "../utils/colors";
 import { GameBoard, generatePreview } from "./GameBoard";
 import { loadSave, saveSave, type SaveData } from "../utils/storage";
-import { setAudioEnabled, playVictory, unlockAudio, startAmbient, stopAmbient } from "../utils/audio";
+import { setAudioEnabled, playVictory, unlockAudio } from "../utils/audio";
 import { haptics, setHapticsEnabled } from "../utils/haptics";
 import { useAuth } from "../hooks/useAuth";
 import { AuthScreen } from "./AuthScreen";
@@ -56,13 +56,6 @@ export function ChromoWeaveApp() {
     if (!hydrated || !auth.user) return;
     void pushProgress(auth.user.id, save);
   }, [save.unlocked, save.completed, save.best, auth.user?.id, hydrated]);
-
-  // Soothing ambient pad while inside a game; stops on home/auth/gallery.
-  useEffect(() => {
-    if (screen.kind === "game" && save.settings.sound) startAmbient();
-    else stopAmbient();
-    return () => stopAmbient();
-  }, [screen.kind, save.settings.sound]);
 
   // Apply theme to <html>
   useEffect(() => {

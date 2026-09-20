@@ -7,7 +7,7 @@ ChromoWeave exposes an OAuth-protected MCP (Model Context Protocol) server so ag
 ## Endpoint
 
 ```text
-https://gradient-flow-lab.lovable.app/mcp
+https://chromoweave.lovable.app/mcp
 ```
 
 Use this URL as a **custom MCP connector** in your agent platform.

@@ -15,7 +15,7 @@ The PWA is already configured:
 Users can "Add to Home Screen" from the published URL:
 
 ```text
-https://gradient-flow-lab.lovable.app
+https://chromoweave.lovable.app
 ```
 
 ---
@@ -34,7 +34,7 @@ Native projects are generated under `android/` and `ios/` using Capacitor 8.
   appName: "ChromoWeave",
   webDir: "dist",
   server: {
-    url: "https://gradient-flow-lab.lovable.app",
+    url: "https://chromoweave.lovable.app",
     cleartext: false,
   },
 }

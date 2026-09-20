@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   // fully offline local assets, remove `server.url` and ensure `dist/index.html`
   // boots the TanStack Start client shell.
   server: {
-    url: "https://gradient-flow-lab.lovable.app",
+    url: "https://chromoweave.lovable.app",
     cleartext: false,
     androidScheme: "https",
     iosScheme: "https",

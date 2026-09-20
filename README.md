@@ -3,7 +3,7 @@
 A meditative color-tapestry puzzle built for the web, PWA, Android, and iOS.
 
 **Live preview:** https://id-preview--04fe0194-cad7-4536-97bd-710ecbf46326.lovable.app  
-**Published app:** https://gradient-flow-lab.lovable.app
+**Published app:** https://chromoweave.lovable.app
 
 ---
 

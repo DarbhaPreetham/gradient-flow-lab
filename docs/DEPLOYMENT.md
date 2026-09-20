@@ -12,7 +12,7 @@ The fastest way to go live is Lovable's built-in publish flow:
 
 1. Click **Publish** in the Lovable editor.
 2. Lovable builds and deploys to the edge network.
-3. Your published URL: `https://gradient-flow-lab.lovable.app`
+3. Your published URL: `https://chromoweave.lovable.app`
 
 ### Custom domain
 

@@ -6,8 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Reset password — ChromaWeave" },
-      { name: "description", content: "Set a new password for your ChromaWeave account." },
+      { title: "Reset password — ChromoWeave" },
+      { name: "description", content: "Set a new password for your ChromoWeave account." },
     ],
   }),
   component: ResetPasswordPage,

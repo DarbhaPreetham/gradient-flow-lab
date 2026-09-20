@@ -15,7 +15,7 @@ type Screen =
   | { kind: "game"; levelId: string }
   | { kind: "auth" };
 
-export function ChromaWeaveApp() {
+export function ChromoWeaveApp() {
   // Use defaults on first render to keep SSR/CSR markup identical, then hydrate from localStorage.
   const [save, setSave] = useState<SaveData>(() => loadSave.defaults());
   const [hydrated, setHydrated] = useState(false);
@@ -189,7 +189,7 @@ function HomeScreen({
       </div>
       <header className="mt-6 text-center">
         <p className="font-display text-xs uppercase tracking-[0.4em]" style={{ color: "var(--cw-muted-soft)" }}>A Color Tapestry</p>
-        <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">ChromaWeave</h1>
+        <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">ChromoWeave</h1>
         <p className="mt-4 text-sm" style={{ color: "var(--cw-muted)" }}>Weave gradients of light into living tapestries.</p>
       </header>
 
@@ -587,7 +587,7 @@ function VictoryModal({
               backgroundImage: `url(${preview})`,
               backgroundSize: "cover",
               boxShadow: "0 0 60px 10px rgba(244,114,182,0.45), 0 0 120px 20px rgba(56,189,248,0.35)",
-              animation: "chromaweave-pulse 3s ease-in-out infinite",
+              animation: "chromoweave-pulse 3s ease-in-out infinite",
             }}
           />
         </div>
@@ -617,7 +617,7 @@ type TutorialStep = {
 const TUTORIAL_STEPS: TutorialStep[] = [
   {
     icon: "🎨",
-    title: "Welcome to ChromaWeave",
+    title: "Welcome to ChromoWeave",
     body: "You are a weaver of light. Each level is a tapestry whose colors have been gently shuffled. Your task is to put every color back into its perfect place — calmly, beautifully, at your own pace.",
     visual: "grid",
   },
@@ -678,7 +678,7 @@ function TutorialOverlay({ onDone }: { onDone: () => void }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="How to play ChromaWeave"
+      aria-label="How to play ChromoWeave"
       className="fixed inset-0 z-50 flex items-center justify-center px-5 backdrop-blur-md"
       style={{ background: "var(--cw-overlay)" }}
     >
@@ -779,7 +779,7 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
             style={{
               background: c,
               boxShadow: "0 0 12px rgba(255,255,255,0.25)",
-              animation: `chromaweave-pulse ${2 + (i % 4) * 0.2}s ease-in-out infinite`,
+              animation: `chromoweave-pulse ${2 + (i % 4) * 0.2}s ease-in-out infinite`,
             }}
           />
         ))}
@@ -803,7 +803,7 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
               outlineOffset: 1,
               transform: isHighlight && kind === "drag" ? "translate(8px, 10px) scale(1.08)" : "none",
               transition: "transform 400ms ease",
-              animation: isHighlight && kind === "hint" ? "chromaweave-pulse 1.2s ease-in-out infinite" : undefined,
+              animation: isHighlight && kind === "hint" ? "chromoweave-pulse 1.2s ease-in-out infinite" : undefined,
               zIndex: isHighlight ? 2 : 1,
             }}
           >

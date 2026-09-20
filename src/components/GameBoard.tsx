@@ -398,7 +398,7 @@ export function GameBoard({
       ref={wrapRef}
       className="relative aspect-square w-full max-w-[min(92vw,560px)] touch-none select-none"
       role="application"
-      aria-label={`ChromaWeave board: ${level.name}`}
+      aria-label={`ChromoWeave board: ${level.name}`}
     >
       <canvas
         ref={canvasRef}

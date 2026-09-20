@@ -1,13 +1,13 @@
-# ChromaWeave MCP Agent Integration
+# ChromoWeave MCP Agent Integration
 
-ChromaWeave exposes an OAuth-protected MCP (Model Context Protocol) server so agents like Claude, ChatGPT, or Codex can read a signed-in player's profile and progress — and reset progress when explicitly confirmed.
+ChromoWeave exposes an OAuth-protected MCP (Model Context Protocol) server so agents like Claude, ChatGPT, or Codex can read a signed-in player's profile and progress — and reset progress when explicitly confirmed.
 
 ---
 
 ## Endpoint
 
 ```text
-https://gradient-flow-lab.lovable.app/mcp
+https://chromoweave.lovable.app/mcp
 ```
 
 Use this URL as a **custom MCP connector** in your agent platform.
@@ -18,8 +18,8 @@ Use this URL as a **custom MCP connector** in your agent platform.
 
 The MCP server uses OAuth 2.0 with Supabase Auth as the issuer.
 
-- The user must already have a ChromaWeave account.
-- The agent redirects the user to the ChromaWeave consent screen.
+- The user must already have a ChromoWeave account.
+- The agent redirects the user to the ChromoWeave consent screen.
 - After approval, the agent receives a bearer token scoped to that user.
 - All tool calls execute with that user's permissions (RLS applies).
 

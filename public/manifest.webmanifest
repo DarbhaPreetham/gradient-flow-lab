@@ -1,6 +1,6 @@
 {
-  "name": "ChromaWeave — A Meditative Color Tapestry Puzzle",
-  "short_name": "ChromaWeave",
+  "name": "ChromoWeave — A Meditative Color Tapestry Puzzle",
+  "short_name": "ChromoWeave",
   "description": "Drag, swap, and weave gradients of light into living tapestries. A zen color puzzle for all ages.",
   "start_url": "/",
   "display": "standalone",
@@ -36,7 +36,7 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "ChromaWeave home screen"
+      "label": "ChromoWeave home screen"
     }
   ]
 }

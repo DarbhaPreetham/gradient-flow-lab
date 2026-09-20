@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">ChromaWeave</string>
-    <string name="title_activity_main">ChromaWeave</string>
-    <string name="package_name">app.chromaweave.game</string>
-    <string name="custom_url_scheme">app.chromaweave.game</string>
+    <string name="app_name">ChromoWeave</string>
+    <string name="title_activity_main">ChromoWeave</string>
+    <string name="package_name">app.chromoweave.game</string>
+    <string name="custom_url_scheme">app.chromoweave.game</string>
 </resources>

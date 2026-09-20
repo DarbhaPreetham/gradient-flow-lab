@@ -122,7 +122,7 @@ export function AuthScreen({
             className="font-display text-[10px] uppercase tracking-[0.35em]"
             style={{ color: "var(--cw-muted-soft)" }}
           >
-            ChromaWeave
+            ChromoWeave
           </span>
         </div>
 

@@ -1,6 +1,6 @@
 import type { Difficulty } from "./colors";
 
-const KEY = "chromaweave:v1";
+const KEY = "chromoweave:v1";
 
 export type Settings = {
   sound: boolean;

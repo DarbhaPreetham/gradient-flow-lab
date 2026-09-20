@@ -1,6 +1,6 @@
-# ChromaWeave Mobile Guide
+# ChromoWeave Mobile Guide
 
-ChromaWeave is a web app first, but it can run as a PWA and as wrapped native apps on Android and iOS via Capacitor.
+ChromoWeave is a web app first, but it can run as a PWA and as wrapped native apps on Android and iOS via Capacitor.
 
 ---
 
@@ -15,7 +15,7 @@ The PWA is already configured:
 Users can "Add to Home Screen" from the published URL:
 
 ```text
-https://gradient-flow-lab.lovable.app
+https://chromoweave.lovable.app
 ```
 
 ---
@@ -30,11 +30,11 @@ Native projects are generated under `android/` and `ios/` using Capacitor 8.
 
 ```ts
 {
-  appId: "app.chromaweave.game",
-  appName: "ChromaWeave",
+  appId: "app.chromoweave.game",
+  appName: "ChromoWeave",
   webDir: "dist",
   server: {
-    url: "https://gradient-flow-lab.lovable.app",
+    url: "https://chromoweave.lovable.app",
     cleartext: false,
   },
 }

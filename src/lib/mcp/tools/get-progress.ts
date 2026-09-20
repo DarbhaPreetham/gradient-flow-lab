@@ -12,7 +12,7 @@ export default defineTool({
   name: "get_progress",
   title: "Get my game progress",
   description:
-    "Return the signed-in user's ChromaWeave progress: unlocked levels, completed levels, and best move counts per level.",
+    "Return the signed-in user's ChromoWeave progress: unlocked levels, completed levels, and best move counts per level.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {

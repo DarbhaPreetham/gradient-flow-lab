@@ -94,14 +94,14 @@ function Consent() {
           className="font-display text-[10px] uppercase tracking-[0.35em]"
           style={{ color: "var(--cw-muted-soft)" }}
         >
-          ChromaWeave
+          ChromoWeave
         </span>
         <h1 className="font-display title-shimmer mt-2 text-2xl font-extrabold">
-          Connect {clientName} to ChromaWeave
+          Connect {clientName} to ChromoWeave
         </h1>
         <p className="mt-3 text-sm" style={{ color: "var(--cw-muted)" }}>
           {clientName} will be able to call this app's enabled tools while you are signed in.
-          This does not bypass ChromaWeave's permissions or backend policies.
+          This does not bypass ChromoWeave's permissions or backend policies.
         </p>
         {details?.scope && (
           <p className="mt-2 text-xs" style={{ color: "var(--cw-muted-soft)" }}>

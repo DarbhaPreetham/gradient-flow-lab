@@ -3,8 +3,7 @@
 ## In progress
 - [ ] Remove `.env` from the public GitHub repo (`.env` is now ignored locally)
 - [ ] Verify repo CI passes after the next Lovable sync
-- [ ] Connect `chromoweave.com` alongside the primary `chromoweave.app` domain
-- [ ] Confirm Namecheap DNS propagation and provide manual setup guidance if needed
+- [ ] Remove the old Namecheap parking CNAME for `www.chromoweave.com` and allow DNS to propagate
 
 ## Completed
 - [x] Core ChromoWeave puzzle game with 12 levels and 3 difficulty groups
@@ -17,3 +16,4 @@
 - [x] OAuth-protected MCP agent integration (`/mcp`)
 - [x] Comprehensive repository documentation (README, architecture, levels, security, MCP, mobile, deployment, privacy, terms)
 - [x] GitHub sync connected and pushed to `https://github.com/DarbhaPreetham/gradient-flow-lab`
+- [x] Connected `chromoweave.app`, `www.chromoweave.app`, and `chromoweave.com`; `.app` is primary

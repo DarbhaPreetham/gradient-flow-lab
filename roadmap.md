@@ -3,6 +3,7 @@
 ## In progress
 - [ ] Remove `.env` from the public GitHub repo (`.env` is now ignored locally)
 - [ ] Verify repo CI passes after the next Lovable sync
+- [ ] Connect `chromoweave.com` alongside the primary `chromoweave.app` domain
 
 ## Completed
 - [x] Core ChromoWeave puzzle game with 12 levels and 3 difficulty groups

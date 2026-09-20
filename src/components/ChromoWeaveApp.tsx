@@ -54,7 +54,9 @@ export function ChromoWeaveApp() {
       if (cancelled) return;
       let nextSave: SaveData | null = null;
       setSave((local) => {
-        const belongsToAnotherAccount = Boolean(local.cloudOwnerId && local.cloudOwnerId !== userId);
+        const belongsToAnotherAccount = Boolean(
+          local.cloudOwnerId && local.cloudOwnerId !== userId,
+        );
         const base = belongsToAnotherAccount
           ? { ...loadSave.defaults(), settings: local.settings, tutorialSeen: local.tutorialSeen }
           : local;
@@ -110,7 +112,8 @@ export function ChromoWeaveApp() {
       const best = { ...s.best, [id]: Math.min(s.best[id] ?? Infinity, moves) };
       const idx = LEVELS.findIndex((l) => l.id === id);
       const next = LEVELS[idx + 1];
-      const unlocked = next && !s.unlocked.includes(next.id) ? [...s.unlocked, next.id] : s.unlocked;
+      const unlocked =
+        next && !s.unlocked.includes(next.id) ? [...s.unlocked, next.id] : s.unlocked;
       return { ...s, completed, best, unlocked };
     });
   };
@@ -141,7 +144,9 @@ export function ChromoWeaveApp() {
         <HomeScreen
           onPlay={() => {
             // resume latest unlocked, not-yet-completed level
-            const next = LEVELS.find((l) => save.unlocked.includes(l.id) && !save.completed.includes(l.id)) ?? LEVELS[0];
+            const next =
+              LEVELS.find((l) => save.unlocked.includes(l.id) && !save.completed.includes(l.id)) ??
+              LEVELS[0];
             startGame(next.id);
           }}
           onGallery={(filter) => setScreen({ kind: "gallery", filter })}
@@ -164,26 +169,27 @@ export function ChromoWeaveApp() {
           onPick={(id) => startGame(id)}
         />
       )}
-      {screen.kind === "game" && (() => {
-        const level = LEVELS.find((candidate) => candidate.id === screen.levelId);
-        if (!level) return null;
-        return (
-        <GameScreen
-          level={level}
-          save={save}
-          onBack={() => setScreen({ kind: "gallery" })}
-          onComplete={completeLevel}
-          onNext={(id) => {
-            const idx = LEVELS.findIndex((l) => l.id === id);
-            const next = LEVELS[idx + 1];
-            if (next) setScreen({ kind: "game", levelId: next.id });
-            else setScreen({ kind: "gallery" });
-          }}
-          onToggleSound={() => updateSettings({ sound: !save.settings.sound })}
-          onShowTutorial={() => setShowTutorial(true)}
-        />
-        );
-      })()}
+      {screen.kind === "game" &&
+        (() => {
+          const level = LEVELS.find((candidate) => candidate.id === screen.levelId);
+          if (!level) return null;
+          return (
+            <GameScreen
+              level={level}
+              save={save}
+              onBack={() => setScreen({ kind: "gallery" })}
+              onComplete={completeLevel}
+              onNext={(id) => {
+                const idx = LEVELS.findIndex((l) => l.id === id);
+                const next = LEVELS[idx + 1];
+                if (next) setScreen({ kind: "game", levelId: next.id });
+                else setScreen({ kind: "gallery" });
+              }}
+              onToggleSound={() => updateSettings({ sound: !save.settings.sound })}
+              onShowTutorial={() => setShowTutorial(true)}
+            />
+          );
+        })()}
       {showTutorial && <TutorialOverlay onDone={finishTutorial} />}
     </main>
   );
@@ -220,9 +226,18 @@ function HomeScreen({
         />
       </div>
       <header className="mt-6 text-center">
-        <p className="font-display text-xs uppercase tracking-[0.4em]" style={{ color: "var(--cw-muted-soft)" }}>A Color Tapestry</p>
-        <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">ChromoWeave</h1>
-        <p className="mt-4 text-sm" style={{ color: "var(--cw-muted)" }}>Weave gradients of light into living tapestries.</p>
+        <p
+          className="font-display text-xs uppercase tracking-[0.4em]"
+          style={{ color: "var(--cw-muted-soft)" }}
+        >
+          A Color Tapestry
+        </p>
+        <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">
+          ChromoWeave
+        </h1>
+        <p className="mt-4 text-sm" style={{ color: "var(--cw-muted)" }}>
+          Weave gradients of light into living tapestries.
+        </p>
       </header>
 
       <div className="my-10 flex w-full flex-col items-center gap-4">
@@ -231,7 +246,7 @@ function HomeScreen({
           onClick={onPlay}
           className="glow-button font-display w-full rounded-2xl px-8 py-5 text-xl font-bold"
         >
-          ▶  Play
+          ▶ Play
         </button>
         <div className="grid w-full grid-cols-3 gap-3">
           {(["beginner", "casual", "master"] as const).map((d) => (
@@ -260,18 +275,37 @@ function HomeScreen({
       </div>
 
       <section className="glass-panel w-full rounded-2xl p-5">
-        <h2 className="font-display mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--cw-muted)" }}>Settings</h2>
+        <h2
+          className="font-display mb-3 text-sm font-semibold uppercase tracking-wider"
+          style={{ color: "var(--cw-muted)" }}
+        >
+          Settings
+        </h2>
         <Toggle
           label="Light mode"
           checked={settings.theme === "light"}
           onChange={(v) => onSettings({ theme: v ? "light" : "dark" })}
         />
-        <Toggle label="Sound FX" checked={settings.sound} onChange={(v) => onSettings({ sound: v })} />
-        <Toggle label="Haptics" checked={settings.haptics} onChange={(v) => onSettings({ haptics: v })} />
-        <Toggle label="Color Blind Assist" checked={settings.colorBlind} onChange={(v) => onSettings({ colorBlind: v })} />
+        <Toggle
+          label="Sound FX"
+          checked={settings.sound}
+          onChange={(v) => onSettings({ sound: v })}
+        />
+        <Toggle
+          label="Haptics"
+          checked={settings.haptics}
+          onChange={(v) => onSettings({ haptics: v })}
+        />
+        <Toggle
+          label="Color Blind Assist"
+          checked={settings.colorBlind}
+          onChange={(v) => onSettings({ colorBlind: v })}
+        />
       </section>
 
-      <footer className="mt-8 text-center text-xs" style={{ color: "var(--cw-muted-soft)" }}>Crafted with light, color, and patience.</footer>
+      <footer className="mt-8 text-center text-xs" style={{ color: "var(--cw-muted-soft)" }}>
+        Crafted with light, color, and patience.
+      </footer>
     </div>
   );
 }
@@ -319,39 +353,51 @@ function AccountChip({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-        type="button"
-        aria-haspopup="menu"
-        className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
+          type="button"
+          aria-haspopup="menu"
+          className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
         >
-        {auth.profile?.avatar_url ? (
-          <img src={auth.profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
-        ) : (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-400 to-cyan-300 text-sm font-bold text-slate-900">
-            {initial}
-          </span>
-        )}
-        <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
+          {auth.profile?.avatar_url ? (
+            <img
+              src={auth.profile.avatar_url}
+              alt=""
+              className="h-8 w-8 rounded-full object-cover"
+            />
+          ) : (
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-400 to-cyan-300 text-sm font-bold text-slate-900">
+              {initial}
+            </span>
+          )}
+          <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="glass-panel w-48 rounded-2xl p-2 text-sm">
-          <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>
-            Signed in as
-            <div className="mt-0.5 truncate font-semibold" style={{ color: "var(--cw-fg)" }}>
-              {auth.user.email}
-            </div>
+        <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>
+          Signed in as
+          <div className="mt-0.5 truncate font-semibold" style={{ color: "var(--cw-fg)" }}>
+            {auth.user.email}
           </div>
-          <DropdownMenuItem
-            onSelect={() => void onSignOut()}
-            className="font-display min-h-11 w-full rounded-xl px-3 py-2 text-left text-sm"
-          >
-            Sign out
-          </DropdownMenuItem>
+        </div>
+        <DropdownMenuItem
+          onSelect={() => void onSignOut()}
+          className="font-display min-h-11 w-full rounded-xl px-3 py-2 text-left text-sm"
+        >
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <label className="flex min-h-11 cursor-pointer items-center justify-between py-2 text-sm">
       <span>{label}</span>
@@ -386,7 +432,10 @@ function GalleryScreen({
   onBack: () => void;
   onPick: (id: string) => void;
 }) {
-  const levels = useMemo(() => (filter ? LEVELS.filter((l) => l.difficulty === filter) : LEVELS), [filter]);
+  const levels = useMemo(
+    () => (filter ? LEVELS.filter((l) => l.difficulty === filter) : LEVELS),
+    [filter],
+  );
   const previews = useMemo(() => {
     const m: Record<string, string> = {};
     for (const l of LEVELS) m[l.id] = generatePreview(l, 160);
@@ -396,10 +445,16 @@ function GalleryScreen({
   return (
     <div className="mx-auto min-h-dvh max-w-md px-5 py-8">
       <header className="mb-6 flex items-center justify-between">
-        <button onClick={onBack} className="glass-panel min-h-11 rounded-xl px-4 py-2 text-sm font-medium text-white/90" aria-label="Back to home">
+        <button
+          onClick={onBack}
+          className="glass-panel min-h-11 rounded-xl px-4 py-2 text-sm font-medium text-white/90"
+          aria-label="Back to home"
+        >
           ← Home
         </button>
-        <h2 className="font-display text-lg font-bold">{filter ? capitalize(filter) : "Tapestries"}</h2>
+        <h2 className="font-display text-lg font-bold">
+          {filter ? capitalize(filter) : "Tapestries"}
+        </h2>
         <div className="w-16" />
       </header>
       <div className="grid grid-cols-2 gap-4">
@@ -423,14 +478,23 @@ function GalleryScreen({
               />
               <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
               <div className="flex h-full flex-col justify-end">
-                <p className="font-display text-[10px] uppercase tracking-widest text-white/70">{l.difficulty} • {l.cols}×{l.rows}</p>
+                <p className="font-display text-[10px] uppercase tracking-widest text-white/70">
+                  {l.difficulty} • {l.cols}×{l.rows}
+                </p>
                 <p className="font-display text-base font-bold text-white drop-shadow">{l.name}</p>
               </div>
               {locked && (
-                <span aria-label="locked" className="absolute right-3 top-3 text-2xl">🔒</span>
+                <span aria-label="locked" className="absolute right-3 top-3 text-2xl">
+                  🔒
+                </span>
               )}
               {done && (
-                <span aria-label="completed" className="absolute right-3 top-3 text-2xl drop-shadow">✓</span>
+                <span
+                  aria-label="completed"
+                  className="absolute right-3 top-3 text-2xl drop-shadow"
+                >
+                  ✓
+                </span>
               )}
             </button>
           );
@@ -440,7 +504,9 @@ function GalleryScreen({
   );
 }
 
-function capitalize(s: string) { return s[0].toUpperCase() + s.slice(1); }
+function capitalize(s: string) {
+  return s[0].toUpperCase() + s.slice(1);
+}
 
 function GameScreen({
   level,
@@ -476,11 +542,17 @@ function GameScreen({
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col px-5 py-6">
       <header className="mb-4 flex items-center justify-between gap-2">
-        <button onClick={onBack} className="glass-panel min-h-11 rounded-xl px-4 py-2 text-sm font-medium" aria-label="Back to gallery">
+        <button
+          onClick={onBack}
+          className="glass-panel min-h-11 rounded-xl px-4 py-2 text-sm font-medium"
+          aria-label="Back to gallery"
+        >
           ← Gallery
         </button>
         <div className="text-center">
-          <p className="font-display text-[10px] uppercase tracking-[0.3em] text-white/60">{level.difficulty}</p>
+          <p className="font-display text-[10px] uppercase tracking-[0.3em] text-white/60">
+            {level.difficulty}
+          </p>
           <h2 className="font-display text-base font-bold">{level.name}</h2>
         </div>
         <div className="flex gap-2">
@@ -549,7 +621,10 @@ function GameScreen({
 
       <footer className="mt-4">
         <div className="glass-panel rounded-2xl p-4">
-          <div className="mb-2 flex items-center justify-between text-xs" style={{ color: "var(--cw-muted)" }}>
+          <div
+            className="mb-2 flex items-center justify-between text-xs"
+            style={{ color: "var(--cw-muted)" }}
+          >
             <span className="sr-only" aria-live="polite" aria-atomic="true">
               {Math.round(progress * 100)} percent woven, {moves} moves
             </span>
@@ -597,35 +672,51 @@ function VictoryModal({
 }) {
   const preview = useMemo(() => generatePreview(level, 280), [level]);
   return (
-    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onGallery(); }}>
+    <DialogPrimitive.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onGallery();
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md" />
         <DialogPrimitive.Content
           aria-describedby={undefined}
           className="glass-panel fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-3rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl p-6 text-center focus:outline-none"
         >
-        <div className="relative mx-auto mb-5 h-56 w-56">
-          <div
-            className="absolute inset-0 rounded-2xl"
-            style={{
-              backgroundImage: `url(${preview})`,
-              backgroundSize: "cover",
-              boxShadow: "0 0 60px 10px rgba(244,114,182,0.45), 0 0 120px 20px rgba(56,189,248,0.35)",
-              animation: "chromoweave-pulse 3s ease-in-out infinite",
-            }}
-          />
-        </div>
-        <p className="font-display text-xs uppercase tracking-[0.3em] text-white/60">{level.name}</p>
-        <DialogPrimitive.Title className="font-display title-shimmer mt-2 text-3xl font-extrabold">Stunning tapestry complete!</DialogPrimitive.Title>
-        <p className="mt-2 text-sm text-white/70">Woven in {moves} moves.</p>
-        <div className="mt-6 flex flex-col gap-3">
-          <button onClick={onNext} className="glow-button font-display rounded-2xl px-6 py-4 text-lg font-bold">
-            Next Tapestry →
-          </button>
-          <button onClick={onGallery} className="glass-panel font-display rounded-2xl px-6 py-3 text-sm font-medium">
-            Back to gallery
-          </button>
-        </div>
+          <div className="relative mx-auto mb-5 h-56 w-56">
+            <div
+              className="absolute inset-0 rounded-2xl"
+              style={{
+                backgroundImage: `url(${preview})`,
+                backgroundSize: "cover",
+                boxShadow:
+                  "0 0 60px 10px rgba(244,114,182,0.45), 0 0 120px 20px rgba(56,189,248,0.35)",
+                animation: "chromoweave-pulse 3s ease-in-out infinite",
+              }}
+            />
+          </div>
+          <p className="font-display text-xs uppercase tracking-[0.3em] text-white/60">
+            {level.name}
+          </p>
+          <DialogPrimitive.Title className="font-display title-shimmer mt-2 text-3xl font-extrabold">
+            Stunning tapestry complete!
+          </DialogPrimitive.Title>
+          <p className="mt-2 text-sm text-white/70">Woven in {moves} moves.</p>
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              onClick={onNext}
+              className="glow-button font-display rounded-2xl px-6 py-4 text-lg font-bold"
+            >
+              Next Tapestry →
+            </button>
+            <button
+              onClick={onGallery}
+              className="glass-panel font-display rounded-2xl px-6 py-3 text-sm font-medium"
+            >
+              Back to gallery
+            </button>
+          </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
@@ -700,62 +791,79 @@ function TutorialOverlay({ onDone }: { onDone: () => void }) {
   }, [onDone]);
 
   return (
-    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onDone(); }}>
+    <DialogPrimitive.Root
+      open
+      onOpenChange={(open) => {
+        if (!open) onDone();
+      }}
+    >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 backdrop-blur-md" style={{ background: "var(--cw-overlay)" }} />
+        <DialogPrimitive.Overlay
+          className="fixed inset-0 z-50 backdrop-blur-md"
+          style={{ background: "var(--cw-overlay)" }}
+        />
         <DialogPrimitive.Content
           aria-describedby={undefined}
           className="glass-panel fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl p-6 focus:outline-none"
         >
-        <div className="mb-4 flex items-center justify-between">
-          <span className="font-display text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--cw-muted-soft)" }}>
-            Step {step + 1} of {TUTORIAL_STEPS.length}
-          </span>
-          <button
-            onClick={onDone}
-            className="font-display text-xs uppercase tracking-wider opacity-70 hover:opacity-100"
-            aria-label="Skip tutorial"
-          >
-            Skip
-          </button>
-        </div>
-
-        <TutorialVisual kind={s.visual} />
-
-        <div className="mt-5 text-center">
-          <div className="text-4xl" aria-hidden>{s.icon}</div>
-          <DialogPrimitive.Title className="font-display mt-2 text-2xl font-extrabold">{s.title}</DialogPrimitive.Title>
-          <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--cw-muted)" }}>{s.body}</p>
-        </div>
-
-        <div className="mt-5 flex items-center justify-center gap-1.5" aria-hidden>
-          {TUTORIAL_STEPS.map((_, i) => (
+          <div className="mb-4 flex items-center justify-between">
             <span
-              key={i}
-              className="h-1.5 rounded-full transition-all"
-              style={{
-                width: i === step ? 24 : 8,
-                background: i === step ? "var(--cw-fg)" : "var(--cw-glass-border)",
-              }}
-            />
-          ))}
-        </div>
+              className="font-display text-[10px] uppercase tracking-[0.3em]"
+              style={{ color: "var(--cw-muted-soft)" }}
+            >
+              Step {step + 1} of {TUTORIAL_STEPS.length}
+            </span>
+            <button
+              onClick={onDone}
+              className="font-display text-xs uppercase tracking-wider opacity-70 hover:opacity-100"
+              aria-label="Skip tutorial"
+            >
+              Skip
+            </button>
+          </div>
 
-        <div className="mt-5 flex gap-3">
-          <button
-            disabled={step === 0}
-            onClick={() => setStep((i) => Math.max(i - 1, 0))}
-            className="glass-panel font-display min-h-12 flex-1 rounded-2xl px-4 py-3 text-sm font-medium disabled:opacity-40"
-          >
-            ← Back
-          </button>
-          <button
-            onClick={() => (isLast ? onDone() : setStep((i) => i + 1))}
-            className="glow-button font-display min-h-12 flex-[1.4] rounded-2xl px-4 py-3 text-base font-bold"
-          >
-            {isLast ? "Start weaving ✨" : "Next →"}
-          </button>
-        </div>
+          <TutorialVisual kind={s.visual} />
+
+          <div className="mt-5 text-center">
+            <div className="text-4xl" aria-hidden>
+              {s.icon}
+            </div>
+            <DialogPrimitive.Title className="font-display mt-2 text-2xl font-extrabold">
+              {s.title}
+            </DialogPrimitive.Title>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--cw-muted)" }}>
+              {s.body}
+            </p>
+          </div>
+
+          <div className="mt-5 flex items-center justify-center gap-1.5" aria-hidden>
+            {TUTORIAL_STEPS.map((_, i) => (
+              <span
+                key={i}
+                className="h-1.5 rounded-full transition-all"
+                style={{
+                  width: i === step ? 24 : 8,
+                  background: i === step ? "var(--cw-fg)" : "var(--cw-glass-border)",
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="mt-5 flex gap-3">
+            <button
+              disabled={step === 0}
+              onClick={() => setStep((i) => Math.max(i - 1, 0))}
+              className="glass-panel font-display min-h-12 flex-1 rounded-2xl px-4 py-3 text-sm font-medium disabled:opacity-40"
+            >
+              ← Back
+            </button>
+            <button
+              onClick={() => (isLast ? onDone() : setStep((i) => i + 1))}
+              className="glow-button font-display min-h-12 flex-[1.4] rounded-2xl px-4 py-3 text-base font-bold"
+            >
+              {isLast ? "Start weaving ✨" : "Next →"}
+            </button>
+          </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
@@ -766,18 +874,27 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
   // Tiny illustrative 4x4 swatch derived from a warm gradient
   const cells = useMemo(() => {
     const palette = [
-      "#FFD89B", "#FFB778", "#FF8E64", "#FF6F61",
-      "#F5C39A", "#F0A07A", "#E07A6A", "#C04848",
-      "#D9A38F", "#C57F84", "#A66D8E", "#84529A",
-      "#A88FB8", "#8A7BC2", "#6C7CD0", "#4D6BD8",
+      "#FFD89B",
+      "#FFB778",
+      "#FF8E64",
+      "#FF6F61",
+      "#F5C39A",
+      "#F0A07A",
+      "#E07A6A",
+      "#C04848",
+      "#D9A38F",
+      "#C57F84",
+      "#A66D8E",
+      "#84529A",
+      "#A88FB8",
+      "#8A7BC2",
+      "#6C7CD0",
+      "#4D6BD8",
     ];
     return palette;
   }, []);
 
-  const highlight =
-    kind === "drag" ? 5 :
-    kind === "anchor" ? -1 :
-    kind === "hint" ? 10 : -2;
+  const highlight = kind === "drag" ? 5 : kind === "anchor" ? -1 : kind === "hint" ? 10 : -2;
   const anchors = new Set(kind === "anchor" ? [0, 3, 12, 15] : []);
   const dragTarget = kind === "drag" ? 10 : -1;
 
@@ -785,10 +902,17 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
     return (
       <div className="rounded-2xl p-4" style={{ background: "var(--cw-glass-border)" }}>
         <div className="mb-2 flex justify-between text-xs" style={{ color: "var(--cw-muted)" }}>
-          <span>62% woven</span><span>14 moves</span>
+          <span>62% woven</span>
+          <span>14 moves</span>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full" style={{ background: "var(--cw-glass-bg)" }}>
-          <div className="h-full rounded-full bg-gradient-to-r from-amber-300 via-fuchsia-400 to-cyan-300" style={{ width: "62%" }} />
+        <div
+          className="h-3 w-full overflow-hidden rounded-full"
+          style={{ background: "var(--cw-glass-bg)" }}
+        >
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-amber-300 via-fuchsia-400 to-cyan-300"
+            style={{ width: "62%" }}
+          />
         </div>
       </div>
     );
@@ -796,7 +920,10 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
 
   if (kind === "victory") {
     return (
-      <div className="grid grid-cols-4 gap-1.5 rounded-2xl p-3" style={{ background: "var(--cw-glass-border)" }}>
+      <div
+        className="grid grid-cols-4 gap-1.5 rounded-2xl p-3"
+        style={{ background: "var(--cw-glass-border)" }}
+      >
         {cells.map((c, i) => (
           <div
             key={i}
@@ -813,7 +940,10 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
   }
 
   return (
-    <div className="relative grid grid-cols-4 gap-1.5 rounded-2xl p-3" style={{ background: "var(--cw-glass-border)" }}>
+    <div
+      className="relative grid grid-cols-4 gap-1.5 rounded-2xl p-3"
+      style={{ background: "var(--cw-glass-border)" }}
+    >
       {cells.map((c, i) => {
         const isHighlight = i === highlight;
         const isAnchor = anchors.has(i);
@@ -824,11 +954,19 @@ function TutorialVisual({ kind }: { kind: TutorialStep["visual"] }) {
             className="relative aspect-square rounded-md"
             style={{
               background: c,
-              outline: isHighlight ? "3px solid rgba(255,255,255,0.95)" : isTarget ? "2px dashed rgba(255,255,255,0.85)" : "none",
+              outline: isHighlight
+                ? "3px solid rgba(255,255,255,0.95)"
+                : isTarget
+                  ? "2px dashed rgba(255,255,255,0.85)"
+                  : "none",
               outlineOffset: 1,
-              transform: isHighlight && kind === "drag" ? "translate(8px, 10px) scale(1.08)" : "none",
+              transform:
+                isHighlight && kind === "drag" ? "translate(8px, 10px) scale(1.08)" : "none",
               transition: "transform 400ms ease",
-              animation: isHighlight && kind === "hint" ? "chromoweave-pulse 1.2s ease-in-out infinite" : undefined,
+              animation:
+                isHighlight && kind === "hint"
+                  ? "chromoweave-pulse 1.2s ease-in-out infinite"
+                  : undefined,
               zIndex: isHighlight ? 2 : 1,
             }}
           >

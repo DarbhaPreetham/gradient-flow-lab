@@ -181,7 +181,14 @@ export function GameBoard({
 
       // Update lerps
       for (const t of tiles) {
-        if (t.lerpStart != null && t.lerpDur && t.lerpFromX != null && t.lerpFromY != null && t.lerpToX != null && t.lerpToY != null) {
+        if (
+          t.lerpStart != null &&
+          t.lerpDur &&
+          t.lerpFromX != null &&
+          t.lerpFromY != null &&
+          t.lerpToX != null &&
+          t.lerpToY != null
+        ) {
           const k = Math.min(1, (now - t.lerpStart) / t.lerpDur);
           const e = easeOut(k);
           t.dx = t.lerpFromX + (t.lerpToX - t.lerpFromX) * e;
@@ -195,7 +202,14 @@ export function GameBoard({
       }
 
       // Draw board glow background
-      const grad = ctx.createRadialGradient(cssSize / 2, cssSize / 2, cssSize * 0.1, cssSize / 2, cssSize / 2, cssSize * 0.7);
+      const grad = ctx.createRadialGradient(
+        cssSize / 2,
+        cssSize / 2,
+        cssSize * 0.1,
+        cssSize / 2,
+        cssSize / 2,
+        cssSize * 0.7,
+      );
       grad.addColorStop(0, "rgba(255,255,255,0.04)");
       grad.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = grad;
@@ -248,7 +262,8 @@ export function GameBoard({
       const selectedIdx = keyboardSelectedRef.current;
       if (selectedIdx != null) {
         const selectedTile = tiles[selectedIdx];
-        if (selectedTile) drawKeyboardRing(ctx, selectedTile, tile, pad, "rgba(250,204,21,0.95)", 4);
+        if (selectedTile)
+          drawKeyboardRing(ctx, selectedTile, tile, pad, "rgba(250,204,21,0.95)", 4);
       }
 
       // Draw dragged tile on top, following finger
@@ -416,7 +431,11 @@ export function GameBoard({
   function tilePositionLabel(idx: number) {
     const t = tilesRef.current[idx];
     if (!t) return "Unknown tile";
-    const state = t.anchor ? "anchor, fixed" : t.targetIndex === idx ? "correctly placed" : "movable";
+    const state = t.anchor
+      ? "anchor, fixed"
+      : t.targetIndex === idx
+        ? "correctly placed"
+        : "movable";
     return `Row ${t.row + 1}, column ${t.col + 1}, ${state}`;
   }
 
@@ -429,7 +448,8 @@ export function GameBoard({
     if (e.key === "ArrowLeft") next = coord.c > 0 ? current - 1 : current;
     else if (e.key === "ArrowRight") next = coord.c < level.cols - 1 ? current + 1 : current;
     else if (e.key === "ArrowUp") next = coord.r > 0 ? current - level.cols : current;
-    else if (e.key === "ArrowDown") next = coord.r < level.rows - 1 ? current + level.cols : current;
+    else if (e.key === "ArrowDown")
+      next = coord.r < level.rows - 1 ? current + level.cols : current;
     else if (e.key === "Escape") {
       keyboardSelectedRef.current = null;
       setAnnouncement("Selection cancelled.");
@@ -448,7 +468,9 @@ export function GameBoard({
       if (selected == null) {
         keyboardSelectedRef.current = current;
         playTap();
-        setAnnouncement(`${tilePositionLabel(current)} selected. Move to another tile and press Space to swap.`);
+        setAnnouncement(
+          `${tilePositionLabel(current)} selected. Move to another tile and press Space to swap.`,
+        );
         return;
       }
       if (selected === current) {
@@ -494,7 +516,9 @@ export function GameBoard({
         className="block h-full w-full rounded-3xl"
         style={{ touchAction: "none" }}
       />
-      <p className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
     </div>
   );
 }
@@ -521,7 +545,14 @@ function easeOut(t: number) {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.lineTo(x + w - r, y);
@@ -591,7 +622,10 @@ function drawTile(
 
   // Color blind assist: target symbol/coords
   if (colorBlind) {
-    const targetCoord = { c: tile.targetIndex % level.cols, r: Math.floor(tile.targetIndex / level.cols) };
+    const targetCoord = {
+      c: tile.targetIndex % level.cols,
+      r: Math.floor(tile.targetIndex / level.cols),
+    };
     const label = `${targetCoord.c + 1},${targetCoord.r + 1}`;
     const lum = 0.299 * tile.color.r + 0.587 * tile.color.g + 0.114 * tile.color.b;
     ctx.fillStyle = lum > 140 ? "rgba(15,15,22,0.85)" : "rgba(255,255,255,0.9)";

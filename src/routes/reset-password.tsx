@@ -101,7 +101,11 @@ function ResetPasswordPage() {
               autoComplete="new-password"
               required
             />
-            {error && <p role="alert" className="text-sm text-rose-400">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-rose-400">
+                {error}
+              </p>
+            )}
             <button
               type="submit"
               disabled={busy}

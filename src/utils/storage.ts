@@ -15,6 +15,8 @@ export type SaveData = {
   completed: string[];
   best: Record<string, number>;
   tutorialSeen: boolean;
+  /** Account whose cloud progress is currently cached on this device. */
+  cloudOwnerId?: string;
 };
 
 const DEFAULT: SaveData = {
@@ -37,6 +39,7 @@ export function loadSave(): SaveData {
       completed: parsed.completed ?? [],
       best: parsed.best ?? {},
       tutorialSeen: parsed.tutorialSeen ?? false,
+      cloudOwnerId: parsed.cloudOwnerId,
     };
   } catch {
     return { ...DEFAULT };

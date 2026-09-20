@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LEVELS, type Difficulty, type LevelDef } from "../utils/colors";
 import { GameBoard, generatePreview } from "./GameBoard";
 import { loadSave, saveSave, type SaveData } from "../utils/storage";
@@ -21,6 +28,8 @@ export function ChromoWeaveApp() {
   const [hydrated, setHydrated] = useState(false);
   const [screen, setScreen] = useState<Screen>({ kind: "home" });
   const [showTutorial, setShowTutorial] = useState(false);
+  const [cloudReadyUserId, setCloudReadyUserId] = useState<string | null>(null);
+  const previousUserIdRef = useRef<string | null>(null);
   const auth = useAuth();
 
   useEffect(() => {
@@ -39,13 +48,24 @@ export function ChromoWeaveApp() {
   useEffect(() => {
     if (!hydrated || !auth.user) return;
     let cancelled = false;
-    fetchProgress(auth.user.id).then((cloud) => {
-      if (cancelled || !cloud || !auth.user) return;
+    const userId = auth.user.id;
+    setCloudReadyUserId(null);
+    void fetchProgress(userId).then(async (cloud) => {
+      if (cancelled) return;
+      let nextSave: SaveData | null = null;
       setSave((local) => {
-        const merged = mergeProgress(local, cloud);
-        void pushProgress(auth.user!.id, merged);
-        return merged;
+        const belongsToAnotherAccount = Boolean(local.cloudOwnerId && local.cloudOwnerId !== userId);
+        const base = belongsToAnotherAccount
+          ? { ...loadSave.defaults(), settings: local.settings, tutorialSeen: local.tutorialSeen }
+          : local;
+        const merged = cloud ? mergeProgress(base, cloud) : base;
+        nextSave = { ...merged, cloudOwnerId: userId };
+        return nextSave;
       });
+      await Promise.resolve();
+      if (cancelled || !nextSave) return;
+      await pushProgress(userId, nextSave);
+      if (!cancelled) setCloudReadyUserId(userId);
     });
     return () => {
       cancelled = true;
@@ -53,9 +73,24 @@ export function ChromoWeaveApp() {
   }, [hydrated, auth.user?.id]);
 
   useEffect(() => {
-    if (!hydrated || !auth.user) return;
+    if (!hydrated || auth.loading) return;
+    const currentUserId = auth.user?.id ?? null;
+    const previousUserId = previousUserIdRef.current;
+    if (previousUserId && !currentUserId) {
+      setCloudReadyUserId(null);
+      setSave((local) => ({
+        ...loadSave.defaults(),
+        settings: local.settings,
+        tutorialSeen: local.tutorialSeen,
+      }));
+    }
+    previousUserIdRef.current = currentUserId;
+  }, [auth.loading, auth.user?.id, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !auth.user || cloudReadyUserId !== auth.user.id) return;
     void pushProgress(auth.user.id, save);
-  }, [save.unlocked, save.completed, save.best, auth.user?.id, hydrated]);
+  }, [save.unlocked, save.completed, save.best, auth.user?.id, cloudReadyUserId, hydrated]);
 
   // Apply theme to <html>
   useEffect(() => {
@@ -129,9 +164,12 @@ export function ChromoWeaveApp() {
           onPick={(id) => startGame(id)}
         />
       )}
-      {screen.kind === "game" && (
+      {screen.kind === "game" && (() => {
+        const level = LEVELS.find((candidate) => candidate.id === screen.levelId);
+        if (!level) return null;
+        return (
         <GameScreen
-          level={LEVELS.find((l) => l.id === screen.levelId)!}
+          level={level}
           save={save}
           onBack={() => setScreen({ kind: "gallery" })}
           onComplete={completeLevel}
@@ -144,7 +182,8 @@ export function ChromoWeaveApp() {
           onToggleSound={() => updateSettings({ sound: !save.settings.sound })}
           onShowTutorial={() => setShowTutorial(true)}
         />
-      )}
+        );
+      })()}
       {showTutorial && <TutorialOverlay onDone={finishTutorial} />}
     </main>
   );
@@ -260,7 +299,6 @@ function AccountChip({
   onAuth: () => void;
   onSignOut: () => void | Promise<void>;
 }) {
-  const [open, setOpen] = useState(false);
   if (auth.loading) return null;
   if (!auth.user) {
     return (
@@ -278,14 +316,13 @@ function AccountChip({
   const name = auth.profile?.display_name || auth.user.email?.split("@")[0] || "Weaver";
   const initial = name.charAt(0).toUpperCase();
   return (
-    <div className="relative">
-      <button
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
-        aria-expanded={open}
         className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
-      >
+        >
         {auth.profile?.avatar_url ? (
           <img src={auth.profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
         ) : (
@@ -294,32 +331,23 @@ function AccountChip({
           </span>
         )}
         <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
-      </button>
-      {open && (
-        <div
-          role="menu"
-          className="glass-panel absolute right-0 top-12 z-20 w-48 rounded-2xl p-2 text-sm shadow-lg"
-        >
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="glass-panel w-48 rounded-2xl p-2 text-sm">
           <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>
             Signed in as
             <div className="mt-0.5 truncate font-semibold" style={{ color: "var(--cw-fg)" }}>
               {auth.user.email}
             </div>
           </div>
-          <button
-            type="button"
-            role="menuitem"
-            onClick={async () => {
-              setOpen(false);
-              await onSignOut();
-            }}
-            className="font-display w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-white/10"
+          <DropdownMenuItem
+            onSelect={() => void onSignOut()}
+            className="font-display min-h-11 w-full rounded-xl px-3 py-2 text-left text-sm"
           >
             Sign out
-          </button>
-        </div>
-      )}
-    </div>
+          </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -521,7 +549,10 @@ function GameScreen({
 
       <footer className="mt-4">
         <div className="glass-panel rounded-2xl p-4">
-          <div className="mb-2 flex items-center justify-between text-xs text-white/70">
+          <div className="mb-2 flex items-center justify-between text-xs" style={{ color: "var(--cw-muted)" }}>
+            <span className="sr-only" aria-live="polite" aria-atomic="true">
+              {Math.round(progress * 100)} percent woven, {moves} moves
+            </span>
             <span>{Math.round(progress * 100)}% woven</span>
             <span>{moves} moves</span>
             <button
@@ -566,13 +597,13 @@ function VictoryModal({
 }) {
   const preview = useMemo(() => generatePreview(level, 280), [level]);
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Tapestry complete"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6 backdrop-blur-md"
-    >
-      <div className="glass-panel w-full max-w-sm rounded-3xl p-6 text-center">
+    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onGallery(); }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md" />
+        <DialogPrimitive.Content
+          aria-describedby={undefined}
+          className="glass-panel fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-3rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl p-6 text-center focus:outline-none"
+        >
         <div className="relative mx-auto mb-5 h-56 w-56">
           <div
             className="absolute inset-0 rounded-2xl"
@@ -585,7 +616,7 @@ function VictoryModal({
           />
         </div>
         <p className="font-display text-xs uppercase tracking-[0.3em] text-white/60">{level.name}</p>
-        <h3 className="font-display title-shimmer mt-2 text-3xl font-extrabold">Stunning tapestry complete!</h3>
+        <DialogPrimitive.Title className="font-display title-shimmer mt-2 text-3xl font-extrabold">Stunning tapestry complete!</DialogPrimitive.Title>
         <p className="mt-2 text-sm text-white/70">Woven in {moves} moves.</p>
         <div className="mt-6 flex flex-col gap-3">
           <button onClick={onNext} className="glow-button font-display rounded-2xl px-6 py-4 text-lg font-bold">
@@ -595,8 +626,9 @@ function VictoryModal({
             Back to gallery
           </button>
         </div>
-      </div>
-    </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 
@@ -668,14 +700,13 @@ function TutorialOverlay({ onDone }: { onDone: () => void }) {
   }, [onDone]);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="How to play ChromoWeave"
-      className="fixed inset-0 z-50 flex items-center justify-center px-5 backdrop-blur-md"
-      style={{ background: "var(--cw-overlay)" }}
-    >
-      <div className="glass-panel w-full max-w-md rounded-3xl p-6">
+    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onDone(); }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 backdrop-blur-md" style={{ background: "var(--cw-overlay)" }} />
+        <DialogPrimitive.Content
+          aria-describedby={undefined}
+          className="glass-panel fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2.5rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl p-6 focus:outline-none"
+        >
         <div className="mb-4 flex items-center justify-between">
           <span className="font-display text-[10px] uppercase tracking-[0.3em]" style={{ color: "var(--cw-muted-soft)" }}>
             Step {step + 1} of {TUTORIAL_STEPS.length}
@@ -693,7 +724,7 @@ function TutorialOverlay({ onDone }: { onDone: () => void }) {
 
         <div className="mt-5 text-center">
           <div className="text-4xl" aria-hidden>{s.icon}</div>
-          <h3 className="font-display mt-2 text-2xl font-extrabold">{s.title}</h3>
+          <DialogPrimitive.Title className="font-display mt-2 text-2xl font-extrabold">{s.title}</DialogPrimitive.Title>
           <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--cw-muted)" }}>{s.body}</p>
         </div>
 
@@ -725,8 +756,9 @@ function TutorialOverlay({ onDone }: { onDone: () => void }) {
             {isLast ? "Start weaving ✨" : "Next →"}
           </button>
         </div>
-      </div>
-    </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 

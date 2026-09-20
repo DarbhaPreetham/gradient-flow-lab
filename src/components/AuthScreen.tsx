@@ -204,7 +204,7 @@ export function AuthScreen({
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
-                  className="font-display absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[10px] uppercase tracking-wider opacity-70 hover:opacity-100"
+                  className="font-display absolute right-0 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-md px-2 text-[10px] uppercase tracking-wider opacity-70 hover:opacity-100"
                   aria-label={showPw ? "Hide password" : "Show password"}
                 >
                   {showPw ? "Hide" : "Show"}

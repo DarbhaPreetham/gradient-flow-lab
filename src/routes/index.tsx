@@ -5,9 +5,19 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "ChromoWeave — A Meditative Color Tapestry Puzzle" },
-      { name: "description", content: "Drag, swap, and weave gradients of light into living tapestries. A zen color puzzle for all ages." },
+      {
+        name: "description",
+        content:
+          "Drag, swap, and weave gradients of light into living tapestries. A zen color puzzle for all ages.",
+      },
       { property: "og:title", content: "ChromoWeave — A Meditative Color Tapestry Puzzle" },
-      { property: "og:description", content: "Drag, swap, and weave gradients of light into living tapestries. A zen color puzzle for all ages." },
+      {
+        property: "og:description",
+        content:
+          "Drag, swap, and weave gradients of light into living tapestries. A zen color puzzle for all ages.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,

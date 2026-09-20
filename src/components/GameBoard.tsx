@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   type LevelDef,
   type RGB,
@@ -69,6 +69,9 @@ export function GameBoard({
   } | null>(null);
   const hintRef = useRef<{ idx: number; start: number } | null>(null);
   const completedRef = useRef(false);
+  const keyboardFocusRef = useRef(0);
+  const keyboardSelectedRef = useRef<number | null>(null);
+  const [announcement, setAnnouncement] = useState("");
 
   // Build / rebuild tiles when level or resetToken changes
   useEffect(() => {
@@ -114,6 +117,9 @@ export function GameBoard({
     tilesRef.current = tiles;
     completedRef.current = false;
     hintRef.current = null;
+    keyboardFocusRef.current = 0;
+    keyboardSelectedRef.current = null;
+    setAnnouncement("Board shuffled. Use arrow keys to move, then Space to select and swap tiles.");
     reportProgress();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level.id, resetToken]);
@@ -175,7 +181,14 @@ export function GameBoard({
 
       // Update lerps
       for (const t of tiles) {
-        if (t.lerpStart != null && t.lerpDur && t.lerpFromX != null && t.lerpFromY != null && t.lerpToX != null && t.lerpToY != null) {
+        if (
+          t.lerpStart != null &&
+          t.lerpDur &&
+          t.lerpFromX != null &&
+          t.lerpFromY != null &&
+          t.lerpToX != null &&
+          t.lerpToY != null
+        ) {
           const k = Math.min(1, (now - t.lerpStart) / t.lerpDur);
           const e = easeOut(k);
           t.dx = t.lerpFromX + (t.lerpToX - t.lerpFromX) * e;
@@ -189,7 +202,14 @@ export function GameBoard({
       }
 
       // Draw board glow background
-      const grad = ctx.createRadialGradient(cssSize / 2, cssSize / 2, cssSize * 0.1, cssSize / 2, cssSize / 2, cssSize * 0.7);
+      const grad = ctx.createRadialGradient(
+        cssSize / 2,
+        cssSize / 2,
+        cssSize * 0.1,
+        cssSize / 2,
+        cssSize / 2,
+        cssSize * 0.7,
+      );
       grad.addColorStop(0, "rgba(255,255,255,0.04)");
       grad.addColorStop(1, "rgba(255,255,255,0)");
       ctx.fillStyle = grad;
@@ -232,6 +252,18 @@ export function GameBoard({
         } else {
           hintRef.current = null;
         }
+      }
+
+      // Keyboard focus and selected-tile indicators.
+      if (document.activeElement === canvas) {
+        const focusTile = tiles[keyboardFocusRef.current];
+        if (focusTile) drawKeyboardRing(ctx, focusTile, tile, pad, "rgba(255,255,255,0.95)", 3);
+      }
+      const selectedIdx = keyboardSelectedRef.current;
+      if (selectedIdx != null) {
+        const selectedTile = tiles[selectedIdx];
+        if (selectedTile)
+          drawKeyboardRing(ctx, selectedTile, tile, pad, "rgba(250,204,21,0.95)", 4);
       }
 
       // Draw dragged tile on top, following finger
@@ -294,7 +326,8 @@ export function GameBoard({
 
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
     unlockAudio();
-    const canvas = canvasRef.current!;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
@@ -325,7 +358,8 @@ export function GameBoard({
   function onPointerMove(e: React.PointerEvent<HTMLCanvasElement>) {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
-    const canvas = canvasRef.current!;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const px = e.clientX - rect.left;
     const py = e.clientY - rect.top;
@@ -339,7 +373,8 @@ export function GameBoard({
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
     drag.hum?.stop();
-    const canvas = canvasRef.current!;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     try {
       canvas.releasePointerCapture(e.pointerId);
     } catch {
@@ -393,6 +428,74 @@ export function GameBoard({
     lerpFrom(a, fromVisualX, fromVisualY, a.col, a.row);
   }
 
+  function tilePositionLabel(idx: number) {
+    const t = tilesRef.current[idx];
+    if (!t) return "Unknown tile";
+    const state = t.anchor
+      ? "anchor, fixed"
+      : t.targetIndex === idx
+        ? "correctly placed"
+        : "movable";
+    return `Row ${t.row + 1}, column ${t.col + 1}, ${state}`;
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLCanvasElement>) {
+    const tiles = tilesRef.current;
+    if (tiles.length === 0) return;
+    const current = keyboardFocusRef.current;
+    const coord = indexToCoord(current, level.cols);
+    let next = current;
+    if (e.key === "ArrowLeft") next = coord.c > 0 ? current - 1 : current;
+    else if (e.key === "ArrowRight") next = coord.c < level.cols - 1 ? current + 1 : current;
+    else if (e.key === "ArrowUp") next = coord.r > 0 ? current - level.cols : current;
+    else if (e.key === "ArrowDown")
+      next = coord.r < level.rows - 1 ? current + level.cols : current;
+    else if (e.key === "Escape") {
+      keyboardSelectedRef.current = null;
+      setAnnouncement("Selection cancelled.");
+      e.preventDefault();
+      return;
+    } else if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      unlockAudio();
+      const tile = tiles[current];
+      if (tile.anchor) {
+        playTap();
+        setAnnouncement(`${tilePositionLabel(current)} cannot be moved.`);
+        return;
+      }
+      const selected = keyboardSelectedRef.current;
+      if (selected == null) {
+        keyboardSelectedRef.current = current;
+        playTap();
+        setAnnouncement(
+          `${tilePositionLabel(current)} selected. Move to another tile and press Space to swap.`,
+        );
+        return;
+      }
+      if (selected === current) {
+        keyboardSelectedRef.current = null;
+        setAnnouncement("Selection cancelled.");
+        return;
+      }
+      const other = tiles[selected];
+      if (!other || tile.anchor) return;
+      [other.color, tile.color] = [tile.color, other.color];
+      [other.targetIndex, tile.targetIndex] = [tile.targetIndex, other.targetIndex];
+      keyboardSelectedRef.current = null;
+      playSwap();
+      haptics.swap();
+      onMove();
+      reportProgress();
+      setAnnouncement(`Tiles swapped. ${tilePositionLabel(current)}.`);
+      return;
+    } else return;
+
+    e.preventDefault();
+    keyboardFocusRef.current = next;
+    setAnnouncement(tilePositionLabel(next));
+  }
+
   return (
     <div
       ref={wrapRef}
@@ -402,22 +505,54 @@ export function GameBoard({
     >
       <canvas
         ref={canvasRef}
+        tabIndex={0}
+        role="grid"
+        aria-label={`${level.name} puzzle, ${level.rows} rows by ${level.cols} columns. Use arrow keys to move, and Space or Enter to select and swap tiles.`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
+        onKeyDown={onKeyDown}
         className="block h-full w-full rounded-3xl"
         style={{ touchAction: "none" }}
       />
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
     </div>
   );
+}
+
+function drawKeyboardRing(
+  ctx: CanvasRenderingContext2D,
+  tileData: Tile,
+  tileSize: number,
+  pad: number,
+  color: string,
+  width: number,
+) {
+  const x = pad + tileData.col * tileSize;
+  const y = pad + tileData.row * tileSize;
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  roundRect(ctx, x + 4, y + 4, tileSize - 8, tileSize - 8, Math.max(6, tileSize * 0.12));
+  ctx.stroke();
+  ctx.restore();
 }
 
 function easeOut(t: number) {
   return 1 - Math.pow(1 - t, 3);
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.lineTo(x + w - r, y);
@@ -487,7 +622,10 @@ function drawTile(
 
   // Color blind assist: target symbol/coords
   if (colorBlind) {
-    const targetCoord = { c: tile.targetIndex % level.cols, r: Math.floor(tile.targetIndex / level.cols) };
+    const targetCoord = {
+      c: tile.targetIndex % level.cols,
+      r: Math.floor(tile.targetIndex / level.cols),
+    };
     const label = `${targetCoord.c + 1},${targetCoord.r + 1}`;
     const lum = 0.299 * tile.color.r + 0.587 * tile.color.g + 0.114 * tile.color.b;
     ctx.fillStyle = lum > 140 ? "rgba(15,15,22,0.85)" : "rgba(255,255,255,0.9)";

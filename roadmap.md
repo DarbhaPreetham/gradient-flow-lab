@@ -1,3 +1,10 @@
+## Active QA pass
+- [ ] Test gameplay, tutorial, settings, persistence, and all navigation states.
+- [ ] Test account entry and password-reset flows without creating test data.
+- [ ] Test desktop, phone, and tablet layouts plus keyboard accessibility.
+- [ ] Run static checks and focused production-security review.
+- [ ] Fix verified defects and re-test affected flows.
+
 # ChromoWeave Roadmap
 
 ## In progress

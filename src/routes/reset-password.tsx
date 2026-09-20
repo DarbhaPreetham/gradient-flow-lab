@@ -8,6 +8,10 @@ export const Route = createFileRoute("/reset-password")({
     meta: [
       { title: "Reset password — ChromoWeave" },
       { name: "description", content: "Set a new password for your ChromoWeave account." },
+      { property: "og:title", content: "Reset password — ChromoWeave" },
+      { property: "og:description", content: "Set a new password for your ChromoWeave account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ResetPasswordPage,
@@ -80,7 +84,8 @@ function ResetPasswordPage() {
               <button
                 type="button"
                 onClick={() => setShow((v) => !v)}
-                className="font-display absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[10px] uppercase tracking-wider opacity-70 hover:opacity-100"
+                className="font-display absolute right-0 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-md px-2 text-[10px] uppercase tracking-wider opacity-70 hover:opacity-100"
+                aria-label={show ? "Hide passwords" : "Show passwords"}
               >
                 {show ? "Hide" : "Show"}
               </button>
@@ -96,7 +101,11 @@ function ResetPasswordPage() {
               autoComplete="new-password"
               required
             />
-            {error && <p role="alert" className="text-sm text-rose-400">{error}</p>}
+            {error && (
+              <p role="alert" className="text-sm text-rose-400">
+                {error}
+              </p>
+            )}
             <button
               type="submit"
               disabled={busy}

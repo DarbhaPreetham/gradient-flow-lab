@@ -1,4 +1,4 @@
-package app.chromaweave.game;
+package app.chromoweave.game;
 
 import com.getcapacitor.BridgeActivity;
 

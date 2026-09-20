@@ -1,6 +1,6 @@
-# ChromaWeave Levels
+# ChromoWeave Levels
 
-ChromaWeave ships with 12 handcrafted levels split into three difficulty groups. Each level is defined by a palette, grid size, and optional interior anchors or control points.
+ChromoWeave ships with 12 handcrafted levels split into three difficulty groups. Each level is defined by a palette, grid size, and optional interior anchors or control points.
 
 ---
 

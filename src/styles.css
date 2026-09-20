@@ -149,7 +149,7 @@
   }
 }
 
-/* ChromaWeave theme tokens. Default = dark; .light overrides. */
+/* ChromoWeave theme tokens. Default = dark; .light overrides. */
 :root {
   --cw-bg: #0F0F16;
   --cw-fg: oklch(0.97 0.01 280);
@@ -200,12 +200,12 @@ html.light {
   color: var(--cw-fg);
 }
 
-@keyframes chromaweave-pulse {
+@keyframes chromoweave-pulse {
   0%, 100% { opacity: 0.85; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.03); }
 }
 
-@keyframes chromaweave-shimmer {
+@keyframes chromoweave-shimmer {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
@@ -217,7 +217,7 @@ html.light {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: chromaweave-shimmer 8s ease-in-out infinite;
+  animation: chromoweave-shimmer 8s ease-in-out infinite;
 }
 
 @utility glow-button {

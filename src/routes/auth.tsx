@@ -14,7 +14,7 @@ export const Route = createFileRoute("/auth")({
   // Browser-only: Supabase session lives in localStorage, absent during SSR.
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({ next: sanitizeNext(s.next) }),
-  head: () => ({ meta: [{ title: "Sign in — ChromaWeave" }] }),
+  head: () => ({ meta: [{ title: "Sign in — ChromoWeave" }] }),
   component: AuthRoute,
 });
 

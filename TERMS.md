@@ -1,20 +1,20 @@
-# Terms of Service — ChromaWeave
+# Terms of Service — ChromoWeave
 
 *Last updated: September 6, 2026*
 
-Please read these Terms of Service carefully before using ChromaWeave.
+Please read these Terms of Service carefully before using ChromoWeave.
 
 ---
 
 ## Acceptance of terms
 
-By accessing or using ChromaWeave, you agree to be bound by these Terms. If you do not agree, do not use the app.
+By accessing or using ChromoWeave, you agree to be bound by these Terms. If you do not agree, do not use the app.
 
 ---
 
 ## Description of service
 
-ChromaWeave is a casual puzzle game in which players rearrange colored tiles to restore gradient tapestries. The game is provided on web, PWA, Android, and iOS platforms.
+ChromoWeave is a casual puzzle game in which players rearrange colored tiles to restore gradient tapestries. The game is provided on web, PWA, Android, and iOS platforms.
 
 ---
 
@@ -39,19 +39,19 @@ You agree not to:
 
 ## Intellectual property
 
-All content, design, code, and assets in ChromaWeave are owned by ChromaWeave or its licensors. You may not copy, modify, distribute, or create derivative works without permission.
+All content, design, code, and assets in ChromoWeave are owned by ChromoWeave or its licensors. You may not copy, modify, distribute, or create derivative works without permission.
 
 ---
 
 ## In-app purchases and subscriptions
 
-If ChromaWeave offers in-app purchases or subscriptions, they are processed through the applicable app store. All purchases are final and subject to the store's refund policy.
+If ChromoWeave offers in-app purchases or subscriptions, they are processed through the applicable app store. All purchases are final and subject to the store's refund policy.
 
 ---
 
 ## Limitation of liability
 
-To the fullest extent permitted by law, ChromaWeave shall not be liable for any indirect, incidental, or consequential damages arising from your use of the app.
+To the fullest extent permitted by law, ChromoWeave shall not be liable for any indirect, incidental, or consequential damages arising from your use of the app.
 
 ---
 
@@ -69,7 +69,7 @@ We may update these Terms from time to time. Continued use of the app after chan
 
 ## Governing law
 
-These Terms shall be governed by the laws of the jurisdiction in which ChromaWeave operates, without regard to conflict of law principles.
+These Terms shall be governed by the laws of the jurisdiction in which ChromoWeave operates, without regard to conflict of law principles.
 
 ---
 
@@ -77,8 +77,8 @@ These Terms shall be governed by the laws of the jurisdiction in which ChromaWea
 
 If you have questions about these Terms, please contact:
 
-**ChromaWeave Support**  
-Email: support@chromaweave.app
+**ChromoWeave Support**  
+Email: support@chromoweave.app
 
 ---
 

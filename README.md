@@ -1,4 +1,4 @@
-# ChromaWeave
+# ChromoWeave
 
 A meditative color-tapestry puzzle built for the web, PWA, Android, and iOS.
 
@@ -7,9 +7,9 @@ A meditative color-tapestry puzzle built for the web, PWA, Android, and iOS.
 
 ---
 
-## What is ChromaWeave?
+## What is ChromoWeave?
 
-ChromaWeave is a relaxing, accessibility-first puzzle game for players aged 7 to 70. Each level is a woven grid of colored tiles that has been gently shuffled. Your goal is to drag and swap tiles until the colors flow smoothly from corner to corner, matching the hidden gradient.
+ChromoWeave is a relaxing, accessibility-first puzzle game for players aged 7 to 70. Each level is a woven grid of colored tiles that has been gently shuffled. Your goal is to drag and swap tiles until the colors flow smoothly from corner to corner, matching the hidden gradient.
 
 - **No timer, no penalties** — play at your own pace.
 - **12 handcrafted tapestries** across Beginner, Casual, and Master difficulties.
@@ -77,7 +77,7 @@ src/
   lib/                  App libraries (MCP server, error handling)
   routes/               TanStack file-based routes
   integrations/         Auto-generated Supabase & Lovable auth clients
-  styles.css            Tailwind v4 theme + ChromaWeave design tokens
+  styles.css            Tailwind v4 theme + ChromoWeave design tokens
   server.ts             SSR error wrapper
   start.ts              Start instance with Supabase auth middleware
 supabase/migrations/    Database schema + RLS policies
@@ -127,6 +127,6 @@ See [`AGENTS.md`](AGENTS.md) for the Lovable-specific guidance.
 
 ## License
 
-Copyright © ChromaWeave. All rights reserved.
+Copyright © ChromoWeave. All rights reserved.
 
-This repository contains the source code for the ChromaWeave application. Distribution and reuse terms are governed by [`TERMS.md`](TERMS.md).
+This repository contains the source code for the ChromoWeave application. Distribution and reuse terms are governed by [`TERMS.md`](TERMS.md).

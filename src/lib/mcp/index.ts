@@ -9,11 +9,11 @@ import resetProgressTool from "./tools/reset-progress";
 const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
 
 export default defineMcp({
-  name: "chromaweave-mcp",
-  title: "ChromaWeave",
+  name: "chromoweave-mcp",
+  title: "ChromoWeave",
   version: "0.1.0",
   instructions:
-    "Tools for ChromaWeave, a meditative color-tapestry puzzle. Use `get_profile` and `get_progress` to inspect the signed-in player's account and level progress. Use `reset_progress` (with confirm=true) to wipe progress back to level 1.",
+    "Tools for ChromoWeave, a meditative color-tapestry puzzle. Use `get_profile` and `get_progress` to inspect the signed-in player's account and level progress. Use `reset_progress` (with confirm=true) to wipe progress back to level 1.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",

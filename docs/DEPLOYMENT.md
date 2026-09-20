@@ -1,4 +1,4 @@
-# ChromaWeave Deployment Guide
+# ChromoWeave Deployment Guide
 
 This guide covers web publishing, CI/CD, and the path to native store distribution.
 
@@ -16,7 +16,7 @@ The fastest way to go live is Lovable's built-in publish flow:
 
 ### Custom domain
 
-Recommended domain: `chromaweave.app`
+Recommended domain: `chromoweave.app`
 
 To connect it:
 

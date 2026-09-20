@@ -1,4 +1,4 @@
-# ChromaWeave Security & Privacy
+# ChromoWeave Security & Privacy
 
 This document describes how user accounts, passwords, and data are protected.
 
@@ -6,7 +6,7 @@ This document describes how user accounts, passwords, and data are protected.
 
 ## 1. Passwords
 
-ChromaWeave **never stores plaintext passwords** in application code or the database.
+ChromoWeave **never stores plaintext passwords** in application code or the database.
 
 - Passwords are handled exclusively by **Lovable Cloud / Supabase Auth**.
 - Supabase Auth hashes passwords server-side with **bcrypt** before storage.
@@ -50,7 +50,7 @@ Both helper functions are revoked from `PUBLIC`, `anon`, and `authenticated` to 
 
 The MCP endpoint (`/mcp`) is protected by **OAuth 2.0** issued by Supabase Auth.
 
-- Agents must authenticate as a ChromaWeave user.
+- Agents must authenticate as a ChromoWeave user.
 - Tools can only read/write data belonging to that user because RLS still applies.
 - The destructive `reset_progress` tool requires `confirm: true`.
 

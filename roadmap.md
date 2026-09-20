@@ -1,11 +1,11 @@
-# ChromaWeave Roadmap
+# ChromoWeave Roadmap
 
 ## In progress
 - [ ] Remove `.env` from the public GitHub repo (`.env` is now ignored locally)
 - [ ] Verify repo CI passes after the next Lovable sync
 
 ## Completed
-- [x] Core ChromaWeave puzzle game with 12 levels and 3 difficulty groups
+- [x] Core ChromoWeave puzzle game with 12 levels and 3 difficulty groups
 - [x] Light/dark theme + first-play tutorial
 - [x] Goal gradient preview and progressive difficulty
 - [x] Supabase Auth (email/password + Google OAuth) with RLS-secured profiles/progress

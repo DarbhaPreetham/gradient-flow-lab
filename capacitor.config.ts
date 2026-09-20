@@ -1,8 +1,8 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "app.chromaweave.game",
-  appName: "ChromaWeave",
+  appId: "app.chromoweave.game",
+  appName: "ChromoWeave",
   webDir: "dist",
   // Load the published web app inside the native wrapper. This lets you ship
   // web updates instantly without waiting for app-store review. To switch to

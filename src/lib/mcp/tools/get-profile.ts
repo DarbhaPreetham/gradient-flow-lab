@@ -10,8 +10,8 @@ function supabaseForUser(ctx: ToolContext) {
 
 export default defineTool({
   name: "get_profile",
-  title: "Get my ChromaWeave profile",
-  description: "Return the signed-in user's ChromaWeave display name and avatar.",
+  title: "Get my ChromoWeave profile",
+  description: "Return the signed-in user's ChromoWeave display name and avatar.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (_input, ctx) => {

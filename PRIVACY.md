@@ -1,8 +1,8 @@
-# Privacy Policy — ChromaWeave
+# Privacy Policy — ChromoWeave
 
 *Last updated: September 6, 2026*
 
-This Privacy Policy explains how ChromaWeave collects, uses, and protects your information when you use the ChromaWeave web and mobile application.
+This Privacy Policy explains how ChromoWeave collects, uses, and protects your information when you use the ChromoWeave web and mobile application.
 
 ---
 
@@ -53,7 +53,7 @@ We do **not** sell your personal information to third parties.
 
 ## Third-party services
 
-ChromaWeave uses:
+ChromoWeave uses:
 
 - **Lovable Cloud / Supabase** for authentication, database, and hosting.
 - **Google OAuth** if you choose to sign in with Google.
@@ -77,7 +77,7 @@ To exercise these rights, contact us at the email listed below.
 
 ## Children's privacy
 
-ChromaWeave is designed to be enjoyable for all ages. We do not knowingly collect personal information from children under 13 without parental consent. If you believe a child has provided personal data without consent, please contact us.
+ChromoWeave is designed to be enjoyable for all ages. We do not knowingly collect personal information from children under 13 without parental consent. If you believe a child has provided personal data without consent, please contact us.
 
 ---
 
@@ -91,8 +91,8 @@ We may update this Privacy Policy from time to time. We will notify users of sig
 
 If you have questions about this Privacy Policy, please contact:
 
-**ChromaWeave Support**  
-Email: support@chromaweave.app
+**ChromoWeave Support**  
+Email: support@chromoweave.app
 
 ---
 

@@ -13,7 +13,7 @@ export default defineTool({
   name: "reset_progress",
   title: "Reset my game progress",
   description:
-    "Reset the signed-in user's ChromaWeave progress back to the first level. This clears completed levels and best scores. Requires explicit confirm=true.",
+    "Reset the signed-in user's ChromoWeave progress back to the first level. This clears completed levels and best scores. Requires explicit confirm=true.",
   inputSchema: {
     confirm: z
       .boolean()

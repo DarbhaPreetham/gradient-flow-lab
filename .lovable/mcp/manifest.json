@@ -11,15 +11,15 @@
   },
   "mcp": {
     "server": {
-      "name": "chromaweave-mcp",
+      "name": "chromoweave-mcp",
       "version": "0.1.0",
-      "title": "ChromaWeave"
+      "title": "ChromoWeave"
     },
     "tools": [
       {
         "name": "get_profile",
-        "title": "Get my ChromaWeave profile",
-        "description": "Return the signed-in user's ChromaWeave display name and avatar.",
+        "title": "Get my ChromoWeave profile",
+        "description": "Return the signed-in user's ChromoWeave display name and avatar.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -35,7 +35,7 @@
       {
         "name": "get_progress",
         "title": "Get my game progress",
-        "description": "Return the signed-in user's ChromaWeave progress: unlocked levels, completed levels, and best move counts per level.",
+        "description": "Return the signed-in user's ChromoWeave progress: unlocked levels, completed levels, and best move counts per level.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -51,7 +51,7 @@
       {
         "name": "reset_progress",
         "title": "Reset my game progress",
-        "description": "Reset the signed-in user's ChromaWeave progress back to the first level. This clears completed levels and best scores. Requires explicit confirm=true.",
+        "description": "Reset the signed-in user's ChromoWeave progress back to the first level. This clears completed levels and best scores. Requires explicit confirm=true.",
         "annotations": {
           "readOnlyHint": false,
           "destructiveHint": true,

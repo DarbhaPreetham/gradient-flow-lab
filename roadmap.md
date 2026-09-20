@@ -6,13 +6,14 @@
 - [ ] Remove the old Namecheap parking CNAME for `www.chromoweave.com` and allow DNS to propagate
 
 ## Completed
+- [x] Removed ambient background music while preserving button, tile, swap, and completion sound effects
 - [x] Restricted profile visibility to each signed-in account owner and ran a fresh security scan
 - [x] Requested production publishing at `https://chromoweave.app`
 - [x] Core ChromoWeave puzzle game with 12 levels and 3 difficulty groups
 - [x] Light/dark theme + first-play tutorial
 - [x] Goal gradient preview and progressive difficulty
 - [x] Supabase Auth (email/password + Google OAuth) with RLS-secured profiles/progress
-- [x] Soothing ambient soundscape and haptics
+- [x] Interaction sound effects and haptics
 - [x] PWA support + Capacitor Android/iOS scaffold
 - [x] GitHub Actions CI/CD workflow (typecheck, lint, build, mobile sync)
 - [x] OAuth-protected MCP agent integration (`/mcp`)

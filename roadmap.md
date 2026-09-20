@@ -6,6 +6,8 @@
 - [ ] Remove the old Namecheap parking CNAME for `www.chromoweave.com` and allow DNS to propagate
 
 ## Completed
+- [x] Restricted profile visibility to each signed-in account owner and ran a fresh security scan
+- [x] Requested production publishing at `https://chromoweave.app`
 - [x] Core ChromoWeave puzzle game with 12 levels and 3 difficulty groups
 - [x] Light/dark theme + first-play tutorial
 - [x] Goal gradient preview and progressive difficulty

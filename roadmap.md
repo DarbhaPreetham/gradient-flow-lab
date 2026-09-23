@@ -8,6 +8,9 @@
 # ChromoWeave Roadmap
 
 ## In progress
+- [ ] Define the ChromoWeave brand system: logo, typography, color palette, motion, and voice
+- [ ] Plan the web-first gameplay expansion: new mechanics, levels, progression, and collaborations
+- [ ] Validate the expanded web experience before adapting it for Android and iOS
 - [ ] Remove `.env` from the public GitHub repo (`.env` is now ignored locally)
 - [ ] Verify repo CI passes after the next Lovable sync
 - [ ] Remove the old Namecheap parking CNAME for `www.chromoweave.com` and allow DNS to propagate

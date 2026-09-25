@@ -308,10 +308,15 @@ function HomeScreen({
 }
 
 function BrandStat({ label, value, tone }: { label: string; value: string; tone: "cyan" | "violet" | "pink" }) {
+  const toneClass = {
+    cyan: "text-brand-cyan",
+    violet: "text-brand-violet",
+    pink: "text-brand-pink",
+  }[tone];
   return (
     <div className="min-w-0 px-1">
       <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
-      <p className={`mt-1 truncate text-xs font-bold text-brand-${tone}`}>{value}</p>
+      <p className={`mt-1 truncate text-xs font-bold ${toneClass}`}>{value}</p>
     </div>
   );
 }
@@ -360,10 +365,11 @@ function AccountChip({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
+        <Button
           type="button"
           aria-haspopup="menu"
-          className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
+          variant="weave"
+          className="font-display h-11 rounded-lg px-2 pr-3 text-sm"
         >
           {auth.profile?.avatar_url ? (
             <img
@@ -377,7 +383,7 @@ function AccountChip({
             </span>
           )}
           <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="glass-panel w-48 rounded-2xl p-2 text-sm">
         <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>

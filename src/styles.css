@@ -59,8 +59,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-display: "Outfit", "Inter", system-ui, sans-serif;
-  --font-sans: "Inter", "Outfit", system-ui, sans-serif;
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
 }
 
 :root {
@@ -97,6 +97,17 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+  --brand-action: oklch(0.58 0.25 286);
+  --brand-action-hover: oklch(0.64 0.24 300);
+  --brand-action-foreground: oklch(0.99 0 0);
+  --brand-surface: oklch(0.2 0.025 292 / 72%);
+  --brand-surface-hover: oklch(0.25 0.04 292 / 86%);
+  --brand-line: oklch(0.95 0.02 290 / 12%);
+  --brand-violet: oklch(0.72 0.22 302);
+  --brand-cyan: oklch(0.79 0.15 205);
+  --brand-pink: oklch(0.72 0.23 344);
+  --overlay: oklch(0.05 0.02 290 / 78%);
+  --shadow-prism: 0 18px 44px -18px oklch(0.6 0.26 292 / 70%);
 }
 
 .dark {
@@ -182,7 +193,57 @@ html.light {
 
 @utility font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+}
+
+@theme inline {
+  --color-brand-action: var(--brand-action);
+  --color-brand-action-hover: var(--brand-action-hover);
+  --color-brand-action-foreground: var(--brand-action-foreground);
+  --color-brand-surface: var(--brand-surface);
+  --color-brand-surface-hover: var(--brand-surface-hover);
+  --color-brand-line: var(--brand-line);
+  --color-brand-violet: var(--brand-violet);
+  --color-brand-cyan: var(--brand-cyan);
+  --color-brand-pink: var(--brand-pink);
+  --color-overlay: var(--overlay);
+  --shadow-prism: var(--shadow-prism);
+}
+
+@utility weave-screen {
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(circle at 16% 18%, oklch(0.49 0.2 290 / 26%), transparent 42%),
+      radial-gradient(circle at 88% 78%, oklch(0.56 0.22 346 / 20%), transparent 44%),
+      var(--cw-bg);
+  }
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.055;
+    background-image:
+      repeating-linear-gradient(45deg, var(--cw-fg) 0 1px, transparent 1px 12px),
+      repeating-linear-gradient(-45deg, var(--cw-fg) 0 1px, transparent 1px 12px);
+    pointer-events: none;
+  }
+}
+
+@utility logo-aura {
+  filter: drop-shadow(0 16px 26px oklch(0.59 0.25 294 / 30%));
+}
+
+@utility brand-sheet {
+  background: color-mix(in oklab, var(--cw-bg) 90%, var(--brand-violet));
+  border: 1px solid var(--brand-line);
+  color: var(--cw-fg);
+  box-shadow: 0 24px 80px oklch(0.04 0.02 290 / 75%);
 }
 
 @utility glass-panel {

@@ -15,6 +15,9 @@ import { useAuth } from "../hooks/useAuth";
 import { AuthScreen } from "./AuthScreen";
 import { fetchProgress, pushProgress, mergeProgress } from "../utils/cloudSync";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { CircleUserRound, Images, Moon, Play, Settings2, Sun, X } from "lucide-react";
+import chromoWeaveLogo from "@/assets/chromoweave-logo-mark.png";
 
 type Screen =
   | { kind: "home" }
@@ -216,111 +219,120 @@ function HomeScreen({
   onAuth: () => void;
   onSignOut: () => void | Promise<void>;
 }) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const nextLevel = Math.min(completedCount + 1, LEVELS.length);
+
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-between px-6 py-10">
-      <div className="absolute right-4 top-4 z-10 flex items-center gap-2">
+    <div className="weave-screen relative mx-auto flex min-h-dvh max-w-lg flex-col px-5 py-5 sm:px-8 sm:py-7">
+      <div className="relative z-20 flex items-center justify-end gap-2">
         <AccountChip auth={auth} onAuth={onAuth} onSignOut={onSignOut} />
         <ThemeToggle
           theme={settings.theme}
           onToggle={() => onSettings({ theme: settings.theme === "dark" ? "light" : "dark" })}
         />
       </div>
-      <header className="mt-6 text-center">
-        <p
-          className="font-display text-xs uppercase tracking-[0.4em]"
-          style={{ color: "var(--cw-muted-soft)" }}
-        >
-          A Color Tapestry
-        </p>
-        <h1 className="font-display title-shimmer mt-3 text-5xl font-extrabold leading-none sm:text-6xl">
-          ChromoWeave
+      <header className="relative z-10 mt-2 flex flex-col items-center text-center sm:mt-4">
+        <div className="logo-aura relative flex h-28 w-28 items-center justify-center sm:h-32 sm:w-32">
+          <img
+            src={chromoWeaveLogo}
+            alt=""
+            width={1024}
+            height={1024}
+            className="h-full w-full object-contain"
+          />
+        </div>
+        <h1 className="font-display mt-1 text-4xl font-extrabold leading-none sm:text-5xl">
+          Chromo<span className="text-brand-violet">Weave</span>
         </h1>
-        <p className="mt-4 text-sm" style={{ color: "var(--cw-muted)" }}>
-          Weave gradients of light into living tapestries.
+        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
+          The spectrum puzzle
         </p>
       </header>
 
-      <div className="my-10 flex w-full flex-col items-center gap-4">
-        <button
-          type="button"
-          onClick={onPlay}
-          className="glow-button font-display w-full rounded-2xl px-8 py-5 text-xl font-bold"
-        >
-          ▶ Play
-        </button>
+      <div className="relative z-10 my-auto flex w-full flex-col items-center gap-3 py-7">
+        <Button type="button" onClick={onPlay} variant="prism" size="hero" className="font-display w-full">
+          <Play aria-hidden="true" fill="currentColor" />
+          Play now
+        </Button>
         <div className="grid w-full grid-cols-3 gap-3">
           {(["beginner", "casual", "master"] as const).map((d) => (
-            <button
+            <Button
               key={d}
+              type="button"
+              variant="weave"
               onClick={() => onGallery(d)}
-              className="glass-panel font-display rounded-xl px-2 py-3 text-xs font-semibold uppercase tracking-wider transition hover:opacity-90"
+              className="font-display min-h-11 px-2 text-[11px] font-semibold uppercase tracking-[0.08em]"
             >
               {d}
-            </button>
+            </Button>
           ))}
         </div>
-        <button
-          onClick={() => onGallery()}
-          className="glass-panel font-display w-full rounded-xl px-4 py-3 text-sm font-medium hover:opacity-90"
-        >
-          Browse all {LEVELS.length} tapestries • {completedCount} complete
-        </button>
-        <button
-          onClick={onShowTutorial}
-          className="font-display text-xs uppercase tracking-[0.3em] underline-offset-4 hover:underline"
-          style={{ color: "var(--cw-muted)" }}
-        >
+        <div className="grid w-full grid-cols-2 gap-3">
+          <Button type="button" variant="weave" size="touch" onClick={() => setSettingsOpen(true)}>
+            <Settings2 aria-hidden="true" /> Settings
+          </Button>
+          <Button type="button" variant="weave" size="touch" onClick={() => onGallery()}>
+            <Images aria-hidden="true" /> Gallery
+          </Button>
+        </div>
+        <Button type="button" variant="link" onClick={onShowTutorial} className="text-muted-foreground">
           How to play
-        </button>
+        </Button>
       </div>
 
-      <section className="glass-panel w-full rounded-2xl p-5">
-        <h2
-          className="font-display mb-3 text-sm font-semibold uppercase tracking-wider"
-          style={{ color: "var(--cw-muted)" }}
-        >
-          Settings
-        </h2>
-        <Toggle
-          label="Light mode"
-          checked={settings.theme === "light"}
-          onChange={(v) => onSettings({ theme: v ? "light" : "dark" })}
-        />
-        <Toggle
-          label="Sound FX"
-          checked={settings.sound}
-          onChange={(v) => onSettings({ sound: v })}
-        />
-        <Toggle
-          label="Haptics"
-          checked={settings.haptics}
-          onChange={(v) => onSettings({ haptics: v })}
-        />
-        <Toggle
-          label="Color Blind Assist"
-          checked={settings.colorBlind}
-          onChange={(v) => onSettings({ colorBlind: v })}
-        />
-      </section>
-
-      <footer className="mt-8 text-center text-xs" style={{ color: "var(--cw-muted-soft)" }}>
-        Crafted with light, color, and patience.
+      <footer className="relative z-10 grid grid-cols-3 border-t border-brand-line pt-4 text-center">
+        <BrandStat label="Woven" value={`${completedCount}/${LEVELS.length}`} tone="cyan" />
+        <BrandStat label="Next" value={`Level ${nextLevel}`} tone="violet" />
+        <BrandStat label="Collection" value="Original" tone="pink" />
       </footer>
+
+      <DialogPrimitive.Root open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-overlay backdrop-blur-sm" />
+          <DialogPrimitive.Content className="brand-sheet fixed bottom-0 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 rounded-t-lg p-6 focus:outline-none sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:rounded-lg">
+            <div className="mb-3 flex items-center justify-between">
+              <DialogPrimitive.Title className="font-display text-xl font-bold">Settings</DialogPrimitive.Title>
+              <DialogPrimitive.Close asChild>
+                <Button type="button" variant="ghost" size="icon" aria-label="Close settings"><X /></Button>
+              </DialogPrimitive.Close>
+            </div>
+            <Toggle label="Light mode" checked={settings.theme === "light"} onChange={(v) => onSettings({ theme: v ? "light" : "dark" })} />
+            <Toggle label="Sound FX" checked={settings.sound} onChange={(v) => onSettings({ sound: v })} />
+            <Toggle label="Haptics" checked={settings.haptics} onChange={(v) => onSettings({ haptics: v })} />
+            <Toggle label="Color Blind Assist" checked={settings.colorBlind} onChange={(v) => onSettings({ colorBlind: v })} />
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
+    </div>
+  );
+}
+
+function BrandStat({ label, value, tone }: { label: string; value: string; tone: "cyan" | "violet" | "pink" }) {
+  const toneClass = {
+    cyan: "text-brand-cyan",
+    violet: "text-brand-violet",
+    pink: "text-brand-pink",
+  }[tone];
+  return (
+    <div className="min-w-0 px-1">
+      <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
+      <p className={`mt-1 truncate text-xs font-bold ${toneClass}`}>{value}</p>
     </div>
   );
 }
 
 function ThemeToggle({ theme, onToggle }: { theme: "light" | "dark"; onToggle: () => void }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onToggle}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      className="glass-panel font-display flex h-11 min-w-11 items-center gap-2 rounded-full px-4 text-sm"
+      variant="weave"
+      size="icon"
+      className="h-11 w-11 rounded-lg"
     >
-      <span aria-hidden>{theme === "dark" ? "🌙" : "☀️"}</span>
-      <span className="hidden sm:inline">{theme === "dark" ? "Dark" : "Light"}</span>
-    </button>
+      {theme === "dark" ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+    </Button>
   );
 }
 
@@ -336,15 +348,16 @@ function AccountChip({
   if (auth.loading) return null;
   if (!auth.user) {
     return (
-      <button
+      <Button
         type="button"
         onClick={onAuth}
-        className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold"
+        variant="weave"
+        className="font-display h-11 rounded-lg px-3 text-sm font-semibold"
         aria-label="Sign in"
       >
-        <span aria-hidden>👤</span>
+        <CircleUserRound aria-hidden="true" />
         <span>Sign in</span>
-      </button>
+      </Button>
     );
   }
   const name = auth.profile?.display_name || auth.user.email?.split("@")[0] || "Weaver";
@@ -352,10 +365,11 @@ function AccountChip({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
+        <Button
           type="button"
           aria-haspopup="menu"
-          className="glass-panel font-display flex h-11 items-center gap-2 rounded-full px-2 pr-3 text-sm"
+          variant="weave"
+          className="font-display h-11 rounded-lg px-2 pr-3 text-sm"
         >
           {auth.profile?.avatar_url ? (
             <img
@@ -369,7 +383,7 @@ function AccountChip({
             </span>
           )}
           <span className="hidden max-w-[8rem] truncate sm:inline">{name}</span>
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="glass-panel w-48 rounded-2xl p-2 text-sm">
         <div className="px-3 py-2 text-[11px]" style={{ color: "var(--cw-muted)" }}>
